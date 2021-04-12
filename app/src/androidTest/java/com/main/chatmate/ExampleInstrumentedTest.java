@@ -1,4 +1,4 @@
-package com.example.chatmate;
+package com.main.chatmate;
 
 import android.content.Context;
 
