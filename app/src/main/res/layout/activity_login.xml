@@ -5,20 +5,20 @@
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
-	android:background="@color/white">
+	android:background="@color/teal_200">
 	
 	<Button
 		android:id="@+id/login_button"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:layout_marginTop="88dp"
-		android:text="Crea/Accedi account"
+		android:layout_marginTop="100dp"
+		android:text="Send verification code"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toBottomOf="@+id/login_text_phonenumber" />
+		app:layout_constraintTop_toBottomOf="@+id/login_text_phone_number" />
 	
 	<EditText
-		android:id="@+id/login_text_phonenumber"
+		android:id="@+id/login_text_phone_number"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_marginTop="108dp"
@@ -30,5 +30,18 @@
 		app:layout_constraintHorizontal_bias="0.497"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toTopOf="parent" />
+	
+	<EditText
+		android:id="@+id/login_verification_code"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginTop="72dp"
+		android:ems="10"
+		android:inputType="number"
+		android:textColor="@color/black"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintHorizontal_bias="0.497"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/login_button" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
