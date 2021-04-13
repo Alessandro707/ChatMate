@@ -16,13 +16,12 @@
 		<com.google.android.material.appbar.CollapsingToolbarLayout
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
-			app:layout_scrollFlags="scroll|exitUntilCollapsed"
-			
-			app:toolbarId="@+id/toolbar"
+			android:background="@color/purple_200"
 			
 			app:contentScrim="@color/teal_200"
-			android:background="@color/purple_500"
-			>
+			
+			app:layout_scrollFlags="scroll|exitUntilCollapsed"
+			app:toolbarId="@+id/toolbar">
 			
 			<TextView
 				android:id="@+id/textView_title"

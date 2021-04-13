@@ -34,6 +34,11 @@ public class ChatAdapter extends BaseAdapter {
 			LayoutInflater inflater = LayoutInflater.from(parent.getContext());
 			convertView = inflater.inflate(R.layout.chat_layout, parent, false);
 		}
+		ImageView img_profilo = convertView.findViewById(R.id.profile_img);
+		TextView nome_chat = convertView.findViewById(R.id.chat_name);
+		
+		//TODO: implement
+		
 		return convertView;
 	}
 }
