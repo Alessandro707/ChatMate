@@ -2,6 +2,8 @@ package com.main.chatmate;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.CountDownTimer;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -18,38 +20,20 @@ import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthOptions;
 import com.google.firebase.auth.PhoneAuthProvider;
 
-import java.io.BufferedWriter;
 import java.util.concurrent.TimeUnit;
 
 public class LoginActivity extends AppCompatActivity {
+	private EditText numero, code_field;
+	private Button sendCode, login;
+	private TextView infoField, resendCode, resendTimer;
+	private CountDownTimer timer;
+	
+	private long codeInterval = 120L;
+	
 	private String mVerificationId;
+	private PhoneAuthProvider.ForceResendingToken mToken;
 	private boolean codeSent = false;
-	private final PhoneAuthProvider.OnVerificationStateChangedCallbacks mCallbacks = new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
-		@Override
-		public void onVerificationCompleted(PhoneAuthCredential credential) {
-			MyLogger.log("Verification completed");
-			signInWithPhoneAuthCredential(credential); // credenziali inserite corrette, accesso
-		}
-		
-		@Override
-		public void onVerificationFailed(FirebaseException e) {
-			MyLogger.log("Login verification failed:");
-			if (e instanceof FirebaseAuthInvalidCredentialsException) {
-				// Invalid request
-				MyLogger.log("    invalid credentials");
-			} else if (e instanceof FirebaseTooManyRequestsException) {
-				// The SMS quota for the project has been exceeded
-				MyLogger.log("    TO MANY REQUESTS!");
-			}
-		}
-		
-		@Override
-		public void onCodeSent(@NonNull String verificationId, @NonNull PhoneAuthProvider.ForceResendingToken token) {
-			mVerificationId = verificationId;
-			codeSent = true;
-			MyLogger.log("Login verification code sent");
-		}
-	};
+	private final PhoneAuthProvider.OnVerificationStateChangedCallbacks mCallbacks = initCallback();
 	
 	@Override
 	protected void onStart() {
@@ -70,43 +54,18 @@ public class LoginActivity extends AppCompatActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_login);
 		
-		EditText numero = findViewById(R.id.login_phoneNumber_editText);
-		Button sendCode = findViewById(R.id.login_sendVerificationCode_Button);
-		EditText code_field = findViewById(R.id.login_verificationCode_editText);
-		Button login = findViewById(R.id.login_checkVerificationCode_button);
-		TextView infoField = findViewById(R.id.login_info_textView);
+		numero = findViewById(R.id.login_phoneNumber_editText);
+		sendCode = findViewById(R.id.login_sendVerificationCode_button);
+		code_field = findViewById(R.id.login_verificationCode_editText);
+		login = findViewById(R.id.login_checkVerificationCode_button);
+		infoField = findViewById(R.id.login_info_textView);
+		resendCode = findViewById(R.id.login_resendCode_textView);
+		resendTimer = findViewById(R.id.login_timer_textView);
 		
-		// FORMATI SUPPORTATI CHE HO SCOPERTO:
-		//+1 650-555-3434
-		//+393479978847
-		sendCode.setOnClickListener(v -> {
-			if(!numero.getText().toString().isEmpty()) {
-				PhoneAuthOptions options = PhoneAuthOptions.newBuilder(FirebaseAuth.getInstance())
-						.setPhoneNumber(numero.getText().toString())
-						.setTimeout(120L, TimeUnit.SECONDS) // tempo dopo il quale il codice di verifica scade
-						.setActivity(this).setCallbacks(mCallbacks)
-						.build();
-				
-				PhoneAuthProvider.verifyPhoneNumber(options);
-			}
-			else {
-				infoField.setText("Insert a phone number (e.g. +16505553434)");
-			}
-		});
-		
-		login.setOnClickListener(v -> {
-			if(!codeSent)
-				return;
-			
-			String code = code_field.getText().toString();
-			if(!code.isEmpty() && code.length() >= 6) {
-				PhoneAuthCredential credential = PhoneAuthProvider.getCredential(mVerificationId, code);
-				signInWithPhoneAuthCredential(credential);
-			}
-			else {
-				infoField.setText("The verification code must be at least 6 characters long");
-			}
-		});
+		sendCode.setOnClickListener(this::sendCode);
+		login.setOnClickListener(this::login);
+		resendCode.setOnClickListener(this::reSendCode);
+		resendCode.setEnabled(false);
 		
 		MyLogger.log("Login activity created successfully");
 	}
@@ -121,14 +80,114 @@ public class LoginActivity extends AppCompatActivity {
 			} else {
 				if (task.getException() instanceof FirebaseAuthInvalidCredentialsException) {
 					// The verification code entered was invalid
-					TextView infoField = findViewById(R.id.login_info_textView);
 					infoField.setText("INVALID VERIFICATION CODE");
-					EditText code_field = findViewById(R.id.login_verificationCode_editText);
 					code_field.setText("");
 					MyLogger.log("Invalid Code");
 				}
 			}
 		});
+	}
+	
+	// TODO: dare l'opzione di scegliere il prefisso
+	private void sendCode(View v) {
+		// FORMATI SUPPORTATI CHE HO SCOPERTO:
+		//+1 650-555-3434
+		//+393479978847
+		if(!numero.getText().toString().isEmpty()) {
+			PhoneAuthOptions options = PhoneAuthOptions.newBuilder(FirebaseAuth.getInstance())
+					.setPhoneNumber("+39" + numero.getText().toString())
+					.setTimeout(codeInterval, TimeUnit.SECONDS) // tempo dopo il quale il codice di verifica scade
+					.setActivity(this).setCallbacks(mCallbacks)
+					.build();
+			
+			PhoneAuthProvider.verifyPhoneNumber(options);
+			initTimer();
+		}
+		else {
+			infoField.setText("Insert a phone number (e.g. +16505553434)");
+		}
+	}
+	
+	private void reSendCode(View v) {
+		// FORMATI SUPPORTATI CHE HO SCOPERTO:
+		//+1 650-555-3434
+		//+393479978847
+		if(!numero.getText().toString().isEmpty()) {
+			PhoneAuthOptions options = PhoneAuthOptions.newBuilder(FirebaseAuth.getInstance())
+					.setPhoneNumber("+39" + numero.getText().toString())
+					.setTimeout(120L, TimeUnit.SECONDS) // tempo dopo il quale il codice di verifica scade
+					.setActivity(this).setCallbacks(mCallbacks)
+					.setForceResendingToken(mToken)
+					.build();
+			
+			PhoneAuthProvider.verifyPhoneNumber(options);
+			resendCode.setEnabled(false);
+			resendTimer.setText("Rimanda codice tra 60 secondi");
+			initTimer();
+		}
+		else {
+			infoField.setText("Insert a phone number (e.g. +16505553434)");
+		}
+	}
+	
+	private void login(View v){
+		if(!codeSent)
+			return;
+		
+		String code = code_field.getText().toString();
+		if(!code.isEmpty() && code.length() >= 6) {
+			PhoneAuthCredential credential = PhoneAuthProvider.getCredential(mVerificationId, code);
+			signInWithPhoneAuthCredential(credential);
+		}
+		else {
+			infoField.setText("The verification code must be at least 6 characters long");
+		}
+	}
+	
+	private PhoneAuthProvider.OnVerificationStateChangedCallbacks initCallback(){
+		return new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
+			@Override
+			public void onVerificationCompleted(PhoneAuthCredential credential) {
+				MyLogger.log("Verification completed");
+				signInWithPhoneAuthCredential(credential); // credenziali inserite corrette, accesso
+			}
+			
+			@Override
+			public void onVerificationFailed(FirebaseException e) {
+				MyLogger.log("Login verification failed:");
+				if (e instanceof FirebaseAuthInvalidCredentialsException) {
+					// Invalid request
+					MyLogger.log("    invalid credentials");
+				} else if (e instanceof FirebaseTooManyRequestsException) {
+					// The SMS quota for the project has been exceeded
+					MyLogger.log("    TO MANY REQUESTS!");
+				}
+			}
+			
+			@Override
+			public void onCodeSent(@NonNull String verificationId, @NonNull PhoneAuthProvider.ForceResendingToken token) {
+				mVerificationId = verificationId;
+				mToken = token;
+				codeSent = true;
+				MyLogger.log("Login verification code sent");
+			}
+		};
+	}
+	
+	private void initTimer(){
+		timer = new CountDownTimer(codeInterval * 1000, 1000) {
+			@Override
+			public void onTick(long millisUntilFinished) {
+				resendTimer.setText("Rimanda codice tra " + (millisUntilFinished / 1000) + " secondi");
+			}
+			
+			@Override
+			public void onFinish() {
+				resendCode.setEnabled(true);
+				resendTimer.setText("Puoi richiedere un'altro codice");
+			}
+		};
+		timer.start();
 	}
 	
 }
