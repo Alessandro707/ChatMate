@@ -8,17 +8,17 @@
 	android:background="@color/teal_200">
 	
 	<Button
-		android:id="@+id/login_button"
+		android:id="@+id/login_sendVerificationCode_Button"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_marginTop="100dp"
 		android:text="Send verification code"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toBottomOf="@+id/login_text_phone_number" />
+		app:layout_constraintTop_toBottomOf="@+id/login_phoneNumber_editText" />
 	
 	<EditText
-		android:id="@+id/login_text_phone_number"
+		android:id="@+id/login_phoneNumber_editText"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_marginTop="108dp"
@@ -32,7 +32,7 @@
 		app:layout_constraintTop_toTopOf="parent" />
 	
 	<EditText
-		android:id="@+id/login_verification_code"
+		android:id="@+id/login_verificationCode_editText"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_marginTop="72dp"
@@ -42,6 +42,29 @@
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintHorizontal_bias="0.497"
 		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toBottomOf="@+id/login_button" />
+		app:layout_constraintTop_toBottomOf="@+id/login_sendVerificationCode_Button" />
+	
+	<Button
+		android:id="@+id/login_checkVerificationCode_button"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginTop="68dp"
+		android:text="VERIFY VERIFICATION CODE"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintHorizontal_bias="0.498"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/login_verificationCode_editText" />
+	
+	<TextView
+		android:id="@+id/login_info_textView"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_marginTop="72dp"
+		android:text="TextView"
+		android:textAlignment="center"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintHorizontal_bias="0.498"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/login_checkVerificationCode_button" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
