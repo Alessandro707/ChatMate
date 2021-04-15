@@ -14,7 +14,7 @@
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:padding="10dp"
-		android:text="Inserisci numero di telefono"/>
+		android:text="@string/insert_phone_number"/>
 	
 	<LinearLayout
 		android:layout_width="wrap_content"
@@ -22,12 +22,12 @@
 		<TextView
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:text="+39"/>
+			android:text="@string/phone_prefix"/>
 		<EditText
 			android:id="@+id/login_phoneNumber_editText"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:hint="xxxxxxxxxx"
+			android:hint="@string/phone_number_hint"
 			android:maxLength="10"
 			android:inputType="phone"/>
 	</LinearLayout>
@@ -37,19 +37,19 @@
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:textAlignment="center"
-		android:text="Manda codice di verifica"/>
+		android:text="@string/send_verification_code"/>
 	
 	<TextView
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:padding="10dp"
-		android:text="Inserisci codice di verifica"/>
+		android:text="@string/insert_verification_code"/>
 	
 	<EditText
 		android:id="@+id/login_verificationCode_editText"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:hint="xxxxxx"
+		android:hint="@string/verification_code_hint"
 		android:maxLength="6"
 		android:inputType="number"/>
 	
@@ -57,20 +57,20 @@
 		android:id="@+id/login_timer_textView"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:text="Rimanda codice tra 120 secondi" />
+		android:text="@string/resend_code_in_120_seconds" />
 	
 	<TextView
 		android:id="@+id/login_resendCode_textView"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:text="Rimanda il codice"/>
+		android:text="@string/resend_code"/>
 	
 	<Button
 		android:id="@+id/login_checkVerificationCode_button"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:textAlignment="center"
-		android:text="Verifica codice di verifica"/>
+		android:text="@string/verify_verification_code"/>
 	
 	<TextView
 		android:id="@+id/login_info_textView"

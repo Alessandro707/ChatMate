@@ -28,7 +28,7 @@ public class LoginActivity extends AppCompatActivity {
 	private TextView infoField, resendCode, resendTimer;
 	private CountDownTimer timer;
 	
-	private long codeInterval = 120L;
+	private final long codeInterval = 120L;
 	
 	private String mVerificationId;
 	private PhoneAuthProvider.ForceResendingToken mToken;
@@ -80,7 +80,7 @@ public class LoginActivity extends AppCompatActivity {
 			} else {
 				if (task.getException() instanceof FirebaseAuthInvalidCredentialsException) {
 					// The verification code entered was invalid
-					infoField.setText("INVALID VERIFICATION CODE");
+					infoField.setText(R.string.invalid_verification_code);
 					code_field.setText("");
 					MyLogger.log("Invalid Code");
 				}
@@ -104,7 +104,7 @@ public class LoginActivity extends AppCompatActivity {
 			initTimer();
 		}
 		else {
-			infoField.setText("Insert a phone number (e.g. +16505553434)");
+			infoField.setText(R.string.insert_phone);
 		}
 	}
 	
@@ -122,11 +122,11 @@ public class LoginActivity extends AppCompatActivity {
 			
 			PhoneAuthProvider.verifyPhoneNumber(options);
 			resendCode.setEnabled(false);
-			resendTimer.setText("Rimanda codice tra 60 secondi");
+			resendTimer.setText(getString(R.string.resend_code_in_x_seconds, codeInterval));
 			initTimer();
 		}
 		else {
-			infoField.setText("Insert a phone number (e.g. +16505553434)");
+			infoField.setText(R.string.insert_phone);
 		}
 	}
 	
@@ -140,7 +140,7 @@ public class LoginActivity extends AppCompatActivity {
 			signInWithPhoneAuthCredential(credential);
 		}
 		else {
-			infoField.setText("The verification code must be at least 6 characters long");
+			infoField.setText(R.string.verification_code_lenght_error);
 		}
 	}
 	
@@ -178,13 +178,13 @@ public class LoginActivity extends AppCompatActivity {
 		timer = new CountDownTimer(codeInterval * 1000, 1000) {
 			@Override
 			public void onTick(long millisUntilFinished) {
-				resendTimer.setText("Rimanda codice tra " + (millisUntilFinished / 1000) + " secondi");
+				resendTimer.setText(getString(R.string.resend_code_in_x_seconds, millisUntilFinished / 1000));
 			}
 			
 			@Override
 			public void onFinish() {
 				resendCode.setEnabled(true);
-				resendTimer.setText("Puoi richiedere un'altro codice");
+				resendTimer.setText(R.string.resend_code);
 			}
 		};
 		timer.start();

@@ -1,4 +1,17 @@
 <resources>
 	<string name="app_name">ChatMate</string>
 	<string name="title">Uossappo</string>
+	<string name="invalid_verification_code">CODICE DI VERIFICA INVALIDO</string>
+	<string name="insert_phone">Inserisci numero di telefono (e.g. +16505553434)</string>
+	<string name="resend_code_in_x_seconds">Rimanda codice tra %1$d secondi</string> <!-- %[parameter_index]$[format_type] (s string, d decimal)  -->
+	<string name="resend_code_in_120_seconds">Rimanda codice tra 120 secondi</string>
+	<string name="verification_code_lenght_error">Il codice di verifica deve essere lungo 6 caratteri</string>
+	<string name="resend_code">Puoi richiedere un\'altro codice</string>
+	<string name="insert_phone_number">Inserisci numero di telefono</string>
+	<string name="phone_prefix">+39</string>
+	<string name="phone_number_hint">xxxxxxxxxx</string>
+	<string name="send_verification_code">Manda codice di verifica</string>
+	<string name="insert_verification_code">Inserisci codice di verifica</string>
+	<string name="verification_code_hint">xxxxxx</string>
+	<string name="verify_verification_code">Verifica codice di verifica</string>
 </resources>
