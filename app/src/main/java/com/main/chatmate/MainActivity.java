@@ -9,6 +9,9 @@ import com.google.android.material.shape.CornerFamily;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+import java.util.Collection;
+import java.util.Collections;
+
 public class MainActivity extends AppCompatActivity {
 	
 	@Override
@@ -16,6 +19,7 @@ public class MainActivity extends AppCompatActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		
+		System.out.println("TEST");
 	}
 }
 
