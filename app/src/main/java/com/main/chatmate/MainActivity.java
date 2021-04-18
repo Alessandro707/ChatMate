@@ -18,6 +18,8 @@ public class MainActivity extends AppCompatActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+		
+		FirebaseAuth.getInstance().signOut();
 	}
 }
 
@@ -39,4 +41,8 @@ esempio:
 $-send nudes
 &+hentai.png <- nome del file da scaricare sul server, poi convertito in percorso nel file system del ricevente
 $+baeh.mp3
- */
+
+
+https://firebase.google.com/docs/storage/android/download-files per i download nel filesystem del dispositivo
+FirebaseUI per download di immagini
+*/

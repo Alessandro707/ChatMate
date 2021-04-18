@@ -3,6 +3,7 @@ package com.main.chatmate;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.os.FileUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -11,6 +12,11 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.cloud.storage.Blob;
+import com.google.cloud.storage.Storage;
+import com.google.cloud.storage.StorageOptions;
 import com.google.firebase.FirebaseException;
 import com.google.firebase.FirebaseTooManyRequestsException;
 import com.google.firebase.auth.FirebaseAuth;
@@ -19,7 +25,20 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthOptions;
 import com.google.firebase.auth.PhoneAuthProvider;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
 public class LoginActivity extends AppCompatActivity {
@@ -67,6 +86,8 @@ public class LoginActivity extends AppCompatActivity {
 		resendCode.setOnClickListener(this::reSendCode);
 		resendCode.setEnabled(false);
 		
+		FirebaseAuth.getInstance().getFirebaseAuthSettings().forceRecaptchaFlowForTesting(true);
+		
 		MyLogger.log("Login activity created successfully");
 	}
 	
@@ -74,7 +95,34 @@ public class LoginActivity extends AppCompatActivity {
 		FirebaseAuth.getInstance().signInWithCredential(credential).addOnCompleteListener(this, task -> {
 			if (task.isSuccessful()) {
 				// L'utente esiste yeee
-				MyLogger.log("Login succeded");
+				MyLogger.log("Login succeeded");
+				
+				FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+				assert user != null;
+				user.reauthenticate(credential);
+				StorageReference storageRef = FirebaseStorage.getInstance().getReference();
+				
+				final long ONE_MEGABYTE = 1024 * 1024;
+				storageRef.child(user.getUid() + "/info.chatmate").getBytes(ONE_MEGABYTE).addOnSuccessListener(bytes -> {
+					// Data for "UID/info.txt" is returned, use this as needed
+					MyLogger.log("Retrieved user info");
+					
+					//TODO: class user
+					
+				}).addOnFailureListener(exception -> {
+					byte[] data = "ciao\nSono giovanni".getBytes();
+					
+					UploadTask uploadTask = storageRef.child(user.getUid() + "/info.chatmate").putBytes(data);
+					uploadTask.addOnFailureListener(failureException -> {
+						// Handle unsuccessful uploads
+						MyLogger.log("Can't upload user info to database: " + failureException.getMessage());
+					}).addOnSuccessListener(taskSnapshot -> {
+						// taskSnapshot.getMetadata() contains file metadata such as size, content-type, etc.
+					});
+					
+					MyLogger.log("Created user info");
+				});
+				
 				Intent intent = new Intent(LoginActivity.this, MainActivity.class);
 				startActivity(intent);
 			} else {
