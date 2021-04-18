@@ -20,6 +20,8 @@ public class MainActivity extends AppCompatActivity {
 		setContentView(R.layout.activity_main);
 		
 		System.out.println("TEST");
+		
+		System.out.println("ciao");
 	}
 }
 
@@ -39,6 +41,6 @@ $ = io
 esempio:
 &-ciao
 $-send nudes
-&+boobs.png <- nome del file da scaricare sul server, poi convertito in percorso nel file system del ricevente
+&+hentai.png <- nome del file da scaricare sul server, poi convertito in percorso nel file system del ricevente
 $+baeh.mp3
  */
