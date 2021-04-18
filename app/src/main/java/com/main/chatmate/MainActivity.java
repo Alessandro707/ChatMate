@@ -21,7 +21,7 @@ public class MainActivity extends AppCompatActivity {
 		
 		System.out.println("TEST");
 		
-		System.out.println("ciao");
+		System.out.println("ciao badinelli");
 	}
 }
 
