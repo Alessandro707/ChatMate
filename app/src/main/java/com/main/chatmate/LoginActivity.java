@@ -86,8 +86,6 @@ public class LoginActivity extends AppCompatActivity {
 		resendCode.setOnClickListener(this::reSendCode);
 		resendCode.setEnabled(false);
 		
-		FirebaseAuth.getInstance().getFirebaseAuthSettings().forceRecaptchaFlowForTesting(true);
-		
 		MyLogger.log("Login activity created successfully");
 	}
 	
@@ -99,26 +97,30 @@ public class LoginActivity extends AppCompatActivity {
 				
 				FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 				assert user != null;
-				user.reauthenticate(credential);
-				StorageReference storageRef = FirebaseStorage.getInstance().getReference();
+				StorageReference storageRef = FirebaseStorage.getInstance().getReference().child(user.getUid() + "/info.chatmate");
 				
-				final long ONE_MEGABYTE = 1024 * 1024;
-				storageRef.child(user.getUid() + "/info.chatmate").getBytes(ONE_MEGABYTE).addOnSuccessListener(bytes -> {
+				FirebaseHandler.download(storageRef, 1024 * 1024, bytes -> {
 					// Data for "UID/info.txt" is returned, use this as needed
 					MyLogger.log("Retrieved user info");
 					
 					//TODO: class user
 					
-				}).addOnFailureListener(exception -> {
+				}, exception -> {
 					byte[] data = "ciao\nSono giovanni".getBytes();
 					
-					UploadTask uploadTask = storageRef.child(user.getUid() + "/info.chatmate").putBytes(data);
+					FirebaseHandler.upload(storageRef, data, failureException -> {
+						MyLogger.log("Can't upload user info to database: " + failureException.getMessage());
+					}, taskSnapshot -> {});
+					
+					/*
+					UploadTask uploadTask = storageRef.putBytes(data);
 					uploadTask.addOnFailureListener(failureException -> {
 						// Handle unsuccessful uploads
 						MyLogger.log("Can't upload user info to database: " + failureException.getMessage());
 					}).addOnSuccessListener(taskSnapshot -> {
 						// taskSnapshot.getMetadata() contains file metadata such as size, content-type, etc.
 					});
+					*/
 					
 					MyLogger.log("Created user info");
 				});
