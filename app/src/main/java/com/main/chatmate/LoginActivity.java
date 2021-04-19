@@ -31,6 +31,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.ListResult;
+import com.google.firebase.storage.StorageException;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
@@ -57,6 +59,7 @@ public class LoginActivity extends AppCompatActivity {
 	@Override
 	protected void onStart() {
 		super.onStart();
+		MyLogger.log("Login activity started successfully");
 		
 		FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser(); // utente già loggato, easy
 		if (user != null) {
@@ -65,7 +68,6 @@ public class LoginActivity extends AppCompatActivity {
 			startActivity(intent);
 		}
 		// utente non loggato, oh shiet
-		MyLogger.log("Login activity started successfully");
 	}
 	
 	@Override
@@ -97,36 +99,29 @@ public class LoginActivity extends AppCompatActivity {
 				
 				FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 				assert user != null;
-				StorageReference storageRef = FirebaseStorage.getInstance().getReference().child(user.getUid() + "/info.chatmate");
+				StorageReference storageRef = FirebaseStorage.getInstance().getReference().child(user.getUid());
 				
-				FirebaseHandler.download(storageRef, 1024 * 1024, bytes -> {
-					// Data for "UID/info.txt" is returned, use this as needed
-					MyLogger.log("Retrieved user info");
+				FirebaseHandler.getAllFilesUnderReference(storageRef, listResult -> {
+					for(StorageReference item : listResult.getItems()){
+						if(item.getName().equals("info.chatmate")){
+							MyLogger.log("Recover user info from database");
+							
+							//TODO: user class
+							
+							Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+							startActivity(intent);
+						}
+					}
 					
-					//TODO: class user
-					
-				}, exception -> {
+					MyLogger.log("Create new user info on database");
 					byte[] data = "ciao\nSono giovanni".getBytes();
-					
-					FirebaseHandler.upload(storageRef, data, failureException -> {
+					FirebaseHandler.upload(storageRef.child("info.chatmate"), data, taskSnapshot -> {MyLogger.log("USER DATA UPLOADED");}, failureException -> {
 						MyLogger.log("Can't upload user info to database: " + failureException.getMessage());
-					}, taskSnapshot -> {});
-					
-					/*
-					UploadTask uploadTask = storageRef.putBytes(data);
-					uploadTask.addOnFailureListener(failureException -> {
-						// Handle unsuccessful uploads
-						MyLogger.log("Can't upload user info to database: " + failureException.getMessage());
-					}).addOnSuccessListener(taskSnapshot -> {
-						// taskSnapshot.getMetadata() contains file metadata such as size, content-type, etc.
 					});
-					*/
-					
-					MyLogger.log("Created user info");
+				}, exception -> {
+					// Uh-oh, an error occurred!
+					MyLogger.log("Database read failed trying to retrieve user info: " + exception.getMessage());
 				});
-				
-				Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-				startActivity(intent);
 			} else {
 				if (task.getException() instanceof FirebaseAuthInvalidCredentialsException) {
 					// The verification code entered was invalid
@@ -151,7 +146,7 @@ public class LoginActivity extends AppCompatActivity {
 					.build();
 			
 			PhoneAuthProvider.verifyPhoneNumber(options);
-			initTimer();
+			
 		}
 		else {
 			infoField.setText(R.string.insert_phone);
@@ -219,6 +214,7 @@ public class LoginActivity extends AppCompatActivity {
 				mVerificationId = verificationId;
 				mToken = token;
 				codeSent = true;
+				initTimer();
 				MyLogger.log("Login verification code sent");
 			}
 		};
