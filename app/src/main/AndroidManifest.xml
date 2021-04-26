@@ -9,13 +9,15 @@
 		android:roundIcon="@mipmap/app_icon_round"
 		android:supportsRtl="true"
 		android:theme="@style/Theme.AppCompat.NoActionBar">
-		<activity android:name="com.main.chatmate.LoginActivity">
+		<activity android:name="com.main.chatmate.activities.LoginActivity">
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN" />
 				<category android:name="android.intent.category.LAUNCHER" />
 			</intent-filter>
 		</activity>
-		<activity android:name="com.main.chatmate.MainActivity"/>
+		<activity android:name="com.main.chatmate.activities.MainActivity"/>
+		<activity android:name="com.main.chatmate.activities.RegisterActivity"/>
+		<activity android:name="com.main.chatmate.activities.LoadingActivity"/>
 	</application>
 
 </manifest>

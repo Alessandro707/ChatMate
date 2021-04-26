@@ -15,16 +15,18 @@
 		
 		<com.google.android.material.appbar.CollapsingToolbarLayout
 			android:layout_width="match_parent"
-			android:layout_height="match_parent"
+			android:layout_height="wrap_content"
 			android:background="@color/purple_200"
 			
-			app:contentScrim="@color/teal_200"
+			android:textAlignment="textEnd"
 			
+			app:contentScrim="@color/teal_200"
 			app:layout_scrollFlags="scroll|exitUntilCollapsed"
 			app:toolbarId="@+id/toolbar">
 			
+			
 			<TextView
-				android:id="@+id/textView_title"
+				android:id="@+id/main_title_textView"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:text="@string/title"
@@ -43,9 +45,18 @@
 		<androidx.constraintlayout.widget.ConstraintLayout
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
-			tools:context=".MainActivity" />
+			tools:context=".activities.MainActivity" />
 	
 	</androidx.core.widget.NestedScrollView>
+	
+	<TextView
+		android:id="@+id/main_username_textView"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:text="username"
+		android:textSize="40sp"
+		app:layout_anchor="@+id/appbar_main"
+		app:layout_anchorGravity="end|center" />
 
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
