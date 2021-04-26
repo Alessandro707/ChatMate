@@ -1,4 +1,4 @@
-package com.main.chatmate;
+package com.main.chatmate.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -19,6 +19,13 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthOptions;
 import com.google.firebase.auth.PhoneAuthProvider;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.main.chatmate.FirebaseHandler;
+import com.main.chatmate.MyHelper;
+import com.main.chatmate.MyLogger;
+import com.main.chatmate.R;
+import com.main.chatmate.User;
 
 import java.util.concurrent.TimeUnit;
 
@@ -38,15 +45,24 @@ public class LoginActivity extends AppCompatActivity {
 	@Override
 	protected void onStart() {
 		super.onStart();
+		MyLogger.log("Login activity started successfully");
 		
 		FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser(); // utente già loggato, easy
 		if (user != null) {
 			MyLogger.log("User logged in");
-			Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-			startActivity(intent);
+			
+			StorageReference storageRef = FirebaseStorage.getInstance().getReference().child(user.getUid() + "/info.chatmate");
+			FirebaseHandler.download(storageRef, 1024 * 1024, bytes -> {
+				User.get().logIn(bytes);
+				
+				Intent mainActivity = new Intent(LoginActivity.this, MainActivity.class);
+				startActivity(mainActivity);
+			}, e -> {});
+			
+			Intent loadActivity = new Intent(LoginActivity.this, LoadingActivity.class);
+			startActivity(loadActivity);
 		}
 		// utente non loggato, oh shiet
-		MyLogger.log("Login activity started successfully");
 	}
 	
 	@Override
@@ -70,19 +86,43 @@ public class LoginActivity extends AppCompatActivity {
 		MyLogger.log("Login activity created successfully");
 	}
 	
+	
 	private void signInWithPhoneAuthCredential(PhoneAuthCredential credential) {
 		FirebaseAuth.getInstance().signInWithCredential(credential).addOnCompleteListener(this, task -> {
 			if (task.isSuccessful()) {
 				// L'utente esiste yeee
-				MyLogger.log("Login succeded");
-				Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-				startActivity(intent);
+				MyLogger.log("Correct code inserted");
+				
+				FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+				assert user != null;
+				StorageReference storageRef = FirebaseStorage.getInstance().getReference().child(user.getUid());
+				
+				FirebaseHandler.getAllFilesUnderReference(storageRef, listResult -> {
+					for(StorageReference item : listResult.getItems()){
+						if(item.getName().equals("info.chatmate")){
+							MyLogger.log("Recover user info from database");
+							
+							User.get().logIn(item.getBytes(1024 * 1024).getResult());
+							
+							Intent mainActivity = new Intent(LoginActivity.this, MainActivity.class);
+							startActivity(mainActivity);
+							return;
+						}
+					}
+					
+					MyLogger.log("Create new user info on database");
+					Intent registerActivity = new Intent(LoginActivity.this, RegisterActivity.class);
+					startActivity(registerActivity);
+				}, exception -> {
+					// Uh-oh, an error occurred!
+					MyLogger.log("Database read failed trying to retrieve user info: " + exception.getMessage());
+				});
 			} else {
 				if (task.getException() instanceof FirebaseAuthInvalidCredentialsException) {
 					// The verification code entered was invalid
 					infoField.setText(R.string.invalid_verification_code);
 					code_field.setText("");
-					MyLogger.log("Invalid Code");
+					MyLogger.log("Invalid verification code");
 				}
 			}
 		});
@@ -101,7 +141,7 @@ public class LoginActivity extends AppCompatActivity {
 					.build();
 			
 			PhoneAuthProvider.verifyPhoneNumber(options);
-			initTimer();
+			
 		}
 		else {
 			infoField.setText(R.string.insert_phone);
@@ -169,6 +209,7 @@ public class LoginActivity extends AppCompatActivity {
 				mVerificationId = verificationId;
 				mToken = token;
 				codeSent = true;
+				initTimer();
 				MyLogger.log("Login verification code sent");
 			}
 		};
