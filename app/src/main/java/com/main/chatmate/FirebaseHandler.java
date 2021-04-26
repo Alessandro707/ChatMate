@@ -9,9 +9,7 @@ import com.google.firebase.storage.UploadTask;
 public interface FirebaseHandler {
 	
 	static void upload(StorageReference where, byte[] data, OnSuccessListener<UploadTask.TaskSnapshot> successListener, OnFailureListener failureListener){
-		UploadTask uploadTask = where.putBytes(data);
-		         // Handle unsuccessful uploads        // taskSnapshot.getMetadata() contains file metadata such as size, content-type, etc.
-		uploadTask.addOnFailureListener(failureListener).addOnSuccessListener(successListener);
+		where.putBytes(data).addOnFailureListener(failureListener).addOnSuccessListener(successListener);
 	}
 	
 	static void download(StorageReference where, long maxSize, OnSuccessListener<byte[]> successListener, OnFailureListener failureListener){

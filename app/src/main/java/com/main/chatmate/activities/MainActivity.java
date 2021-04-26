@@ -1,22 +1,23 @@
-package com.main.chatmate;
+package com.main.chatmate.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.content.Intent;
+import android.app.Application;
+import android.content.Context;
 import android.os.Bundle;
+import android.widget.TextView;
 
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.material.imageview.ShapeableImageView;
-import com.google.android.material.shape.CornerFamily;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.ListResult;
+import com.main.chatmate.MyLogger;
+import com.main.chatmate.R;
+import com.main.chatmate.User;
 
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
+import java.io.FileOutputStream;
+import java.util.Timer;
+import java.util.TimerTask;
+
 
 public class MainActivity extends AppCompatActivity {
 	
@@ -25,7 +26,13 @@ public class MainActivity extends AppCompatActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		MyLogger.log("Main activity started successfully");
+		
+		TextView chatcount = findViewById(R.id.main_username_textView);
+		User.get().loadChats(getApplicationContext());
+		chatcount.setText(User.get().getChats().size());
+		
 	}
+	
 }
 
 /*
@@ -46,6 +53,10 @@ esempio:
 $-send nudes
 &+hentai.png <- nome del file da scaricare sul server, poi convertito in percorso nel file system del ricevente
 $+baeh.mp3
+
+info.chatmate:
+nome\n
+lunghezza del membro\n
 
 
 https://firebase.google.com/docs/storage/android/download-files per i download nel filesystem del dispositivo

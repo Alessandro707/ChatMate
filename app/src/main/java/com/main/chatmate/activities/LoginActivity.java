@@ -1,9 +1,8 @@
-package com.main.chatmate;
+package com.main.chatmate.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.CountDownTimer;
-import android.os.FileUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -12,11 +11,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.cloud.storage.Blob;
-import com.google.cloud.storage.Storage;
-import com.google.cloud.storage.StorageOptions;
 import com.google.firebase.FirebaseException;
 import com.google.firebase.FirebaseTooManyRequestsException;
 import com.google.firebase.auth.FirebaseAuth;
@@ -25,22 +19,14 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthOptions;
 import com.google.firebase.auth.PhoneAuthProvider;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.ListResult;
-import com.google.firebase.storage.StorageException;
 import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
+import com.main.chatmate.FirebaseHandler;
+import com.main.chatmate.MyHelper;
+import com.main.chatmate.MyLogger;
+import com.main.chatmate.R;
+import com.main.chatmate.User;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
 public class LoginActivity extends AppCompatActivity {
@@ -64,8 +50,17 @@ public class LoginActivity extends AppCompatActivity {
 		FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser(); // utente già loggato, easy
 		if (user != null) {
 			MyLogger.log("User logged in");
-			Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-			startActivity(intent);
+			
+			StorageReference storageRef = FirebaseStorage.getInstance().getReference().child(user.getUid() + "/info.chatmate");
+			FirebaseHandler.download(storageRef, 1024 * 1024, bytes -> {
+				User.get().logIn(bytes);
+				
+				Intent mainActivity = new Intent(LoginActivity.this, MainActivity.class);
+				startActivity(mainActivity);
+			}, e -> {});
+			
+			Intent loadActivity = new Intent(LoginActivity.this, LoadingActivity.class);
+			startActivity(loadActivity);
 		}
 		// utente non loggato, oh shiet
 	}
@@ -91,11 +86,12 @@ public class LoginActivity extends AppCompatActivity {
 		MyLogger.log("Login activity created successfully");
 	}
 	
+	
 	private void signInWithPhoneAuthCredential(PhoneAuthCredential credential) {
 		FirebaseAuth.getInstance().signInWithCredential(credential).addOnCompleteListener(this, task -> {
 			if (task.isSuccessful()) {
 				// L'utente esiste yeee
-				MyLogger.log("Login succeeded");
+				MyLogger.log("Correct code inserted");
 				
 				FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 				assert user != null;
@@ -106,18 +102,17 @@ public class LoginActivity extends AppCompatActivity {
 						if(item.getName().equals("info.chatmate")){
 							MyLogger.log("Recover user info from database");
 							
-							//TODO: user class
+							User.get().logIn(item.getBytes(1024 * 1024).getResult());
 							
-							Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-							startActivity(intent);
+							Intent mainActivity = new Intent(LoginActivity.this, MainActivity.class);
+							startActivity(mainActivity);
+							return;
 						}
 					}
 					
 					MyLogger.log("Create new user info on database");
-					byte[] data = "ciao\nSono giovanni".getBytes();
-					FirebaseHandler.upload(storageRef.child("info.chatmate"), data, taskSnapshot -> {MyLogger.log("USER DATA UPLOADED");}, failureException -> {
-						MyLogger.log("Can't upload user info to database: " + failureException.getMessage());
-					});
+					Intent registerActivity = new Intent(LoginActivity.this, RegisterActivity.class);
+					startActivity(registerActivity);
 				}, exception -> {
 					// Uh-oh, an error occurred!
 					MyLogger.log("Database read failed trying to retrieve user info: " + exception.getMessage());
@@ -127,7 +122,7 @@ public class LoginActivity extends AppCompatActivity {
 					// The verification code entered was invalid
 					infoField.setText(R.string.invalid_verification_code);
 					code_field.setText("");
-					MyLogger.log("Invalid Code");
+					MyLogger.log("Invalid verification code");
 				}
 			}
 		});
