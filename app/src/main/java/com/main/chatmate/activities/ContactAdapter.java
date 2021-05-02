@@ -14,14 +14,13 @@ import com.main.chatmate.R;
 import java.util.List;
 
 public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ViewHolder> {
-	private List<String> contacts;
+	private final List<String> contacts;
 	
 	public static class ViewHolder extends RecyclerView.ViewHolder {
 		private final TextView textView;
 		
 		public ViewHolder(View view) {
 			super(view);
-			// Define click listener for the ViewHolder's View
 			
 			view.setOnClickListener(new View.OnClickListener() {
 				@Override

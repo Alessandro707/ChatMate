@@ -84,4 +84,6 @@ lunghezza del membro\n
 
 https://firebase.google.com/docs/storage/android/download-files per i download nel filesystem del dispositivo
 FirebaseUI per download di immagini
+
+// todo: chat col bot all'inizio come tutorial, punti chat con cui sbloccare emote che si ottengono completando obiettivi
 */

@@ -44,9 +44,9 @@ public class User {
 		for(File file : files){
 			try {
 				BufferedReader reader = new BufferedReader(new FileReader(file));
-				chats.add(new Chat(new ChatMate("test", "123")));
+				chats.add(new Chat(new ChatMate("test", "123"))); // <- uid: nome del file, name: db
 				
-				String line = "";
+				String line;
 				while((line = reader.readLine()) != null){
 					// TODO: send / recieve
 					chats.get(chats.size() - 1).receiveMessage(line);
@@ -60,7 +60,7 @@ public class User {
 		this.chatsLoaded = true;
 	}
 	
-	public void loadChat(File chat) {
+	public void addChat(File chat) {
 		try {
 			BufferedReader reader = new BufferedReader(new FileReader(chat));
 			chats.add(new Chat(new ChatMate("test", "123")));
