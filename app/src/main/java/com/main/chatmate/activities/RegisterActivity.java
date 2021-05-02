@@ -14,7 +14,7 @@ import com.google.firebase.storage.StorageReference;
 import com.main.chatmate.FirebaseHandler;
 import com.main.chatmate.MyLogger;
 import com.main.chatmate.R;
-import com.main.chatmate.User;
+import com.main.chatmate.chat.User;
 
 public class RegisterActivity extends AppCompatActivity {
 	

@@ -1,4 +1,4 @@
-package com.main.chatmate;
+package com.main.chatmate.chat;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -7,20 +7,19 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import java.util.ArrayList;
+import com.main.chatmate.R;
 
 public class ChatAdapter extends BaseAdapter {
-	ArrayList<Chat> chats;
 	
 	@Override
 	public int getCount() {
-		return chats.size();
+		return User.get().getChats().size();
 	}
 	
 	@Override
 	public Object getItem(int position) {
-		if(position >= chats.size()) return null;
-		return chats.get(position);
+		if(position >= User.get().getChats().size()) return null;
+		return User.get().getChats().get(position);
 	}
 	
 	@Override

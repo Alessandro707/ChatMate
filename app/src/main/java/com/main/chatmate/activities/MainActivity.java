@@ -2,21 +2,17 @@ package com.main.chatmate.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.app.Application;
-import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.ListView;
 import android.widget.TextView;
 
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.storage.ListResult;
+import com.main.chatmate.chat.ChatAdapter;
 import com.main.chatmate.MyLogger;
 import com.main.chatmate.R;
-import com.main.chatmate.User;
-
-import java.io.FileOutputStream;
-import java.util.Timer;
-import java.util.TimerTask;
+import com.main.chatmate.chat.User;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -25,14 +21,41 @@ public class MainActivity extends AppCompatActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		MyLogger.log("Main activity started successfully");
+		MyLogger.log("Main activity created successfully");
 		
 		TextView chatcount = findViewById(R.id.main_username_textView);
-		User.get().loadChats(getApplicationContext());
-		chatcount.setText(User.get().getChats().size());
+		Button newChat = findViewById(R.id.main_newChat_button);
+		ListView chats = findViewById(R.id.main_chats_listView);
 		
+		// TODO: show initial chats
+		if(!User.get().areChatsLoaded()) {
+			User.get().loadChats(getApplicationContext());
+			
+			ChatAdapter adapter = new ChatAdapter();
+			chats.setAdapter(adapter);
+		}
+		chatcount.setText(User.get().getChats().size() + "");
+		
+		newChat.setOnClickListener(this::selectNewChatmate);
+		
+		if(getIntent().getExtras() != null && getIntent().getExtras().get("newChatmatePhone") != null){
+			createNewChat(String.valueOf(getIntent().getExtras().get("newChatmatePhone")));
+		}
 	}
 	
+	private void selectNewChatmate(View view) {
+		Intent contactsActivity = new Intent(MainActivity.this, ContactsActivity.class);
+		startActivity(contactsActivity);
+	}
+	
+	private void createNewChat(String phone) {
+		// TODO: implement
+		// create new file, load into the User.get().loadChat(), show on screen
+		
+		MyLogger.log("Creating new chat with: " + phone);
+		
+		
+	}
 }
 
 /*

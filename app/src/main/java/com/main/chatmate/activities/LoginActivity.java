@@ -22,10 +22,9 @@ import com.google.firebase.auth.PhoneAuthProvider;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.main.chatmate.FirebaseHandler;
-import com.main.chatmate.MyHelper;
 import com.main.chatmate.MyLogger;
 import com.main.chatmate.R;
-import com.main.chatmate.User;
+import com.main.chatmate.chat.User;
 
 import java.util.concurrent.TimeUnit;
 

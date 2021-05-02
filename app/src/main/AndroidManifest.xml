@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
 	package="com.main.chatmate">
 	
+	<uses-permission android:name="android.permission.ACCESS_MEDIA_LOCATION"/>
+	<uses-permission android:name="android.permission.READ_CONTACTS"/>
 	<application
 		android:allowBackup="true"
 		android:icon="@mipmap/app_icon"
@@ -15,9 +17,11 @@
 				<category android:name="android.intent.category.LAUNCHER" />
 			</intent-filter>
 		</activity>
-		<activity android:name="com.main.chatmate.activities.MainActivity"/>
-		<activity android:name="com.main.chatmate.activities.RegisterActivity"/>
-		<activity android:name="com.main.chatmate.activities.LoadingActivity"/>
+		<activity android:name=".activities.MainActivity"/>
+		<activity android:name=".activities.RegisterActivity"/>
+		<activity android:name=".activities.LoadingActivity"/>
+		<activity android:name=".activities.ContactsActivity"/>
+		<activity android:name=".contactsmadness.ContactsActivityCrazi"/>
 	</application>
 
 </manifest>

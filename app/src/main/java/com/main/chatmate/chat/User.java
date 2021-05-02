@@ -1,9 +1,10 @@
-package com.main.chatmate;
+package com.main.chatmate.chat;
 
 import android.content.Context;
 
 import com.google.firebase.auth.FirebaseAuth;
-
+import com.main.chatmate.MyHelper;
+import com.main.chatmate.MyLogger;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -18,6 +19,7 @@ public class User {
 	private String name = "";
 	private String uid = "";
 	private final ArrayList<Chat> chats = new ArrayList<>();
+	private boolean chatsLoaded = false;
 	
 	private static final int NAME = 0;
 	
@@ -28,9 +30,11 @@ public class User {
 	public String getName(){
 		return name;
 	}
-	
-	public ArrayList<Chat> getChats() {
+	public final ArrayList<Chat> getChats() {
 		return chats;
+	}
+	public boolean areChatsLoaded() {
+		return chatsLoaded;
 	}
 	
 	public void loadChats(Context context) {
@@ -40,10 +44,12 @@ public class User {
 		for(File file : files){
 			try {
 				BufferedReader reader = new BufferedReader(new FileReader(file));
+				chats.add(new Chat(new ChatMate("test", "123")));
 				
 				String line = "";
 				while((line = reader.readLine()) != null){
-				
+					// TODO: send / recieve
+					chats.get(chats.size() - 1).receiveMessage(line);
 				}
 			} catch (FileNotFoundException e) {
 				MyLogger.log("Failed to open chat file: " + file.getName());
@@ -51,8 +57,62 @@ public class User {
 				MyLogger.log("Failed to read chat from file: " + file.getName());
 			}
 		}
+		this.chatsLoaded = true;
+	}
+	
+	public void loadChat(File chat) {
+		try {
+			BufferedReader reader = new BufferedReader(new FileReader(chat));
+			chats.add(new Chat(new ChatMate("test", "123")));
+			
+			String line = "";
+			while((line = reader.readLine()) != null){
+				// TODO: send / recieve
+				chats.get(chats.size() - 1).receiveMessage(line);
+			}
+		} catch (FileNotFoundException e) {
+			MyLogger.log("Failed to open chat chat: " + chat.getName());
+		} catch (IOException e) {
+			MyLogger.log("Failed to read chat from chat: " + chat.getName());
+		}
+	}
+	
+	public static User get() {
+		if(user == null)
+			user = new User();
 		
-		/*
+		return user;
+	}
+	
+	
+	public boolean logIn(byte[] data) {
+		if (logged) {
+			MyLogger.log("INTERNAL USER ALREADY LOGGED IN");
+			return false;
+		}
+		
+		
+		String[] info = MyHelper.byteArrayToString(data).split("\n");
+		this.name = info[NAME];
+		
+		this.uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+		
+		MyLogger.log("Internal user " + this.uid + " successfully logged in");
+		
+		return logged = true;
+	}
+	
+	public void logOut() {
+		name = "";
+		chats.clear();
+		chatsLoaded = false;
+		MyLogger.log("Internal user " + this.uid + " logged out");
+		logged = false;
+	}
+}
+
+
+/*
 		StorageReference storageRef = FirebaseStorage.getInstance().getReference().child(uid);
 		
 		Task<ListResult> task = storageRef.listAll();
@@ -115,37 +175,3 @@ public class User {
 			MyLogger.log("FAILED TO LOAD THE CHATS: " + exception.getMessage());
 		});
 		 */
-	}
-	
-	public static User get(){
-		if(user == null)
-			user = new User();
-		
-		return user;
-	}
-	
-	
-	public boolean logIn(byte[] data) {
-		if (logged) {
-			MyLogger.log("INTERNAL USER ALREADY LOGGED IN");
-			return false;
-		}
-		
-		
-		String[] info = MyHelper.byteArrayToString(data).split("\n");
-		this.name = info[NAME];
-		
-		this.uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
-		
-		MyLogger.log("Internal user " + this.uid + " successfully logged in");
-		
-		return logged = true;
-	}
-	
-	public void logOut() {
-		name = "";
-		chats.clear();
-		MyLogger.log("Internal user " + this.uid + " logged out");
-		logged = false;
-	}
-}

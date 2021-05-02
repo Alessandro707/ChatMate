@@ -1,4 +1,4 @@
-package com.main.chatmate;
+package com.main.chatmate.chat;
 
 import java.util.ArrayList;
 
