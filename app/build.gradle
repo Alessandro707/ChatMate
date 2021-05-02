@@ -7,10 +7,6 @@ android {
     compileSdkVersion 30
     buildToolsVersion "30.0.3"
 
-    packagingOptions {
-        exclude "META-INF/INDEX.LIST"
-    }
-
     defaultConfig {
         applicationId "com.example.chatmate"
         minSdkVersion 26
@@ -47,4 +43,7 @@ dependencies {
     implementation 'com.firebaseui:firebase-ui-auth:6.2.0'
     implementation 'com.google.cloud:google-cloud-storage:1.110.0'
     implementation 'com.google.firebase:firebase-storage'
+    implementation "androidx.fragment:fragment:1.3.3"
+    implementation "androidx.activity:activity:1.2.2"
+    
 }

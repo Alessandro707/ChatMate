@@ -16,6 +16,7 @@ public class User {
 	private static User user;
 	private boolean logged = false;
 	private String name = "";
+	private String info = "";
 	private String uid = "";
 	private final ArrayList<Chat> chats = new ArrayList<>();
 	
@@ -116,7 +117,11 @@ public class User {
 		});
 		 */
 	}
-	
+
+	public byte[] toDatabase (){
+		return (name+"\n"+info+"\n").getBytes();
+	}
+
 	public static User get(){
 		if(user == null)
 			user = new User();

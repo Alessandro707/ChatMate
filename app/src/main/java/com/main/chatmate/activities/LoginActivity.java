@@ -21,6 +21,7 @@ import com.google.firebase.auth.PhoneAuthOptions;
 import com.google.firebase.auth.PhoneAuthProvider;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.main.chatmate.BioActivity;
 import com.main.chatmate.FirebaseHandler;
 import com.main.chatmate.MyHelper;
 import com.main.chatmate.MyLogger;
@@ -111,8 +112,9 @@ public class LoginActivity extends AppCompatActivity {
 					}
 					
 					MyLogger.log("Create new user info on database");
-					Intent registerActivity = new Intent(LoginActivity.this, RegisterActivity.class);
-					startActivity(registerActivity);
+					Intent bioActivity = new Intent(LoginActivity.this, BioActivity.class);
+					bioActivity.putExtra("Phone", numero.getText().toString());
+					startActivity(bioActivity);
 				}, exception -> {
 					// Uh-oh, an error occurred!
 					MyLogger.log("Database read failed trying to retrieve user info: " + exception.getMessage());
