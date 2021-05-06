@@ -6,9 +6,11 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.main.chatmate.chat.ChatAdapter;
 import com.main.chatmate.MyLogger;
 import com.main.chatmate.R;
@@ -23,9 +25,11 @@ public class MainActivity extends AppCompatActivity {
 		setContentView(R.layout.activity_main);
 		MyLogger.log("Main activity created successfully");
 		
+		
 		TextView chatcount = findViewById(R.id.main_username_textView);
 		Button newChat = findViewById(R.id.main_newChat_button);
 		ListView chats = findViewById(R.id.main_chats_listView);
+		Intent sceglifoto = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
 		
 		// TODO: show initial chats
 		if(!User.get().areChatsLoaded()) {
@@ -46,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
 	private void selectNewChatmate(View view) {
 		Intent contactsActivity = new Intent(MainActivity.this, ContactsActivity.class);
 		startActivity(contactsActivity);
+		
 	}
 	
 	private void createNewChat(String phone) {

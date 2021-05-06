@@ -1,12 +1,20 @@
 package com.main.chatmate.chat;
 
+import com.main.chatmate.MyHelper;
+import com.main.chatmate.MyLogger;
+
 public class ChatMate {
-	private final String name;
-	private final String uid;
+	private final String name, uid, info;
 	
-	public ChatMate(String name, String uid){
-		this.name = name;
+	private static final int NAME = 0, INFO = 1;
+	
+	public ChatMate(byte[] data, String uid) {
+		String[] info = MyHelper.byteArrayToString(data).split("\n");
+		this.name = info[NAME];
+		this.info = info[INFO];
 		this.uid = uid;
+		
+		MyLogger.log("Chatmate " + this.uid + " successfully mated in");
 	}
 	
 	public String getName(){

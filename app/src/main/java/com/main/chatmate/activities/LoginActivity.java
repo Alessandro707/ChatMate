@@ -11,6 +11,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseException;
 import com.google.firebase.FirebaseTooManyRequestsException;
 import com.google.firebase.auth.FirebaseAuth;
@@ -56,11 +58,14 @@ public class LoginActivity extends AppCompatActivity {
 				
 				Intent mainActivity = new Intent(LoginActivity.this, MainActivity.class);
 				startActivity(mainActivity);
-			}, e -> {});
-			
-			Intent loadActivity = new Intent(LoginActivity.this, LoadingActivity.class);
-			startActivity(loadActivity);
+			}, e -> {
+				MyLogger.log("User exists but info file not found"); // then do nothing
+			});
 		}
+		// TODO: remove
+		Intent tempActivity = new Intent(LoginActivity.this, BioActivity.class);
+		tempActivity.putExtra("Phone", "3479978847");
+		startActivity(tempActivity);
 		// utente non loggato, oh shiet
 	}
 	
@@ -101,7 +106,7 @@ public class LoginActivity extends AppCompatActivity {
 						if(item.getName().equals("info.chatmate")){
 							MyLogger.log("Recover user info from database");
 							
-							User.get().logIn(item.getBytes(1024 * 1024).getResult());
+							item.getBytes(1024 * 1024).addOnSuccessListener(bytes -> User.get().logIn(bytes));
 							
 							Intent mainActivity = new Intent(LoginActivity.this, MainActivity.class);
 							startActivity(mainActivity);
@@ -110,8 +115,9 @@ public class LoginActivity extends AppCompatActivity {
 					}
 					
 					MyLogger.log("Create new user info on database");
-					Intent registerActivity = new Intent(LoginActivity.this, RegisterActivity.class);
-					startActivity(registerActivity);
+					Intent bioActivity = new Intent(LoginActivity.this, BioActivity.class);
+					bioActivity.putExtra("Phone", numero.getText().toString());
+					startActivity(bioActivity);
 				}, exception -> {
 					// Uh-oh, an error occurred!
 					MyLogger.log("Database read failed trying to retrieve user info: " + exception.getMessage());
@@ -186,13 +192,13 @@ public class LoginActivity extends AppCompatActivity {
 	private PhoneAuthProvider.OnVerificationStateChangedCallbacks initCallback(){
 		return new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
 			@Override
-			public void onVerificationCompleted(PhoneAuthCredential credential) {
+			public void onVerificationCompleted(@NonNull PhoneAuthCredential credential) {
 				MyLogger.log("Verification completed");
 				signInWithPhoneAuthCredential(credential); // credenziali inserite corrette, accesso
 			}
 			
 			@Override
-			public void onVerificationFailed(FirebaseException e) {
+			public void onVerificationFailed(@NonNull FirebaseException e) {
 				MyLogger.log("Login verification failed:");
 				if (e instanceof FirebaseAuthInvalidCredentialsException) {
 					// Invalid request

@@ -3,6 +3,8 @@ package com.main.chatmate.chat;
 import android.content.Context;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.storage.FirebaseStorage;
+import com.main.chatmate.FirebaseHandler;
 import com.main.chatmate.MyHelper;
 import com.main.chatmate.MyLogger;
 
@@ -12,16 +14,16 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class User {
 	private static User user;
 	private boolean logged = false;
-	private String name = "";
-	private String uid = "";
+	private String name = "", uid = "", info = "";
 	private final ArrayList<Chat> chats = new ArrayList<>();
 	private boolean chatsLoaded = false;
 	
-	private static final int NAME = 0;
+	private static final int NAME = 0, INFO = 1;
 	
 	private User() {
 	
@@ -42,30 +44,38 @@ public class User {
 		if(files == null)
 			return;
 		for(File file : files){
-			try {
-				BufferedReader reader = new BufferedReader(new FileReader(file));
-				chats.add(new Chat(new ChatMate("test", "123"))); // <- uid: nome del file, name: db
+			FirebaseHandler.download(FirebaseStorage.getInstance().getReference().child(file.getName()), 1024 * 1024, bytes -> {
+				chats.add(new Chat(new ChatMate(bytes, file.getName()))); // <- uid: nome del file, name: db
 				
-				String line;
-				while((line = reader.readLine()) != null){
-					// TODO: send / recieve
-					chats.get(chats.size() - 1).receiveMessage(line);
+				try {
+					BufferedReader reader = new BufferedReader(new FileReader(file));
+					String line;
+					while ((line = reader.readLine()) != null) {
+						// TODO: send / recieve
+						chats.get(chats.size() - 1).receiveMessage(line);
+					}
+				} catch (FileNotFoundException e) {
+					MyLogger.log("Failed to open chat file: " + file.getName());
+				} catch (IOException e) {
+					MyLogger.log("Failed to read chat from file: " + file.getName());
 				}
-			} catch (FileNotFoundException e) {
-				MyLogger.log("Failed to open chat file: " + file.getName());
-			} catch (IOException e) {
-				MyLogger.log("Failed to read chat from file: " + file.getName());
-			}
+				
+				if(file.equals(files[files.length - 1]))
+					this.chatsLoaded = true;
+			}, e -> MyLogger.log("Can't get the info of user: " + file.getName()));
 		}
-		this.chatsLoaded = true;
+	}
+	
+	public void createChat(ChatMate chatmate) {
+		// TODO: create file and add to the chats list (and create folder on db)
 	}
 	
 	public void addChat(File chat) {
 		try {
 			BufferedReader reader = new BufferedReader(new FileReader(chat));
-			chats.add(new Chat(new ChatMate("test", "123")));
+			chats.add(new Chat(new ChatMate("test".getBytes(), "123")));
 			
-			String line = "";
+			String line;
 			while((line = reader.readLine()) != null){
 				// TODO: send / recieve
 				chats.get(chats.size() - 1).receiveMessage(line);
@@ -84,6 +94,9 @@ public class User {
 		return user;
 	}
 	
+	public byte[] toDatabase (){
+		return (name+"\n"+info+"\n").getBytes();
+	}
 	
 	public boolean logIn(byte[] data) {
 		if (logged) {
@@ -94,8 +107,9 @@ public class User {
 		
 		String[] info = MyHelper.byteArrayToString(data).split("\n");
 		this.name = info[NAME];
+		this.info = info[INFO];
 		
-		this.uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+		this.uid = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
 		
 		MyLogger.log("Internal user " + this.uid + " successfully logged in");
 		

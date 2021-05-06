@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent">
+	
+	<LinearLayout
+		android:id="@+id/linearLayout"
+		android:layout_width="313dp"
+		android:layout_height="574dp"
+		android:orientation="vertical"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toTopOf="parent">
+		
+		<Space
+			android:layout_width="match_parent"
+			android:layout_height="50dp" />
+		
+		<ImageView
+			android:id="@+id/bio_avatar_imageView"
+			android:layout_width="match_parent"
+			android:layout_height="162dp"
+			tools:srcCompat="@tools:sample/avatars" />
+		
+		<Space
+			android:layout_width="match_parent"
+			android:layout_height="50dp" />
+		
+		<TextView
+			android:id="@+id/bio_name_TextView"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:text="Name" />
+		
+		<EditText
+			android:id="@+id/bio_name_EditText"
+			android:layout_width="match_parent"
+			android:layout_height="72dp"
+			android:text="" />
+		
+		<Space
+			android:layout_width="match_parent"
+			android:layout_height="20dp" />
+		
+		<TextView
+			android:id="@+id/bio_info_TextView"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:text="Info" />
+		
+		<EditText
+			android:id="@+id/bio_info_EditText"
+			android:layout_width="match_parent"
+			android:layout_height="70dp"
+			android:text="" />
+		
+		<Space
+			android:layout_width="match_parent"
+			android:layout_height="20dp" />
+		
+		<TextView
+			android:id="@+id/bio_phone_TextView"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:text="Phone" />
+		
+		<TextView
+			android:id="@+id/bio_TextPhone"
+			android:layout_width="match_parent"
+			android:layout_height="70dp"
+			android:ems="10"
+			android:inputType="phone" />
+	
+	</LinearLayout>
+	
+	<Button
+		android:id="@+id/bio_conferma_Button"
+		android:layout_width="139dp"
+		android:layout_height="48dp"
+		android:text="CONFERMA"
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintHorizontal_bias="0.498"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/linearLayout"
+		app:layout_constraintVertical_bias="0.366" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
