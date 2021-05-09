@@ -3,6 +3,8 @@ package com.main.chatmate.chat;
 import android.content.Context;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.main.chatmate.FirebaseHandler;
 import com.main.chatmate.MyHelper;
@@ -11,9 +13,11 @@ import com.main.chatmate.MyLogger;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Objects;
 
 public class User {
@@ -43,7 +47,51 @@ public class User {
 		File[] files = context.getFilesDir().listFiles();
 		if(files == null)
 			return;
-		for(File file : files){
+		for(File file : files){ // nome del file è l'UID
+			DatabaseReference databaseRef = FirebaseDatabase.getInstance().getReference().child("users/" + file.getName());
+			databaseRef.get().addOnCompleteListener(dataTask->{
+				if (!dataTask.isSuccessful()) {
+					// todo: avverti l'utente dell'errore
+					return;
+				}
+				if(dataTask.getResult() == null) { // l'utente è stato eliminato e si mostra la chat con le informazioni dell'utente salvate in locale. // todo: aggiorna le info del chatmate ogni tot
+					try {
+						BufferedReader reader = new BufferedReader(new FileReader(file));
+						String line = reader.readLine();
+						String[] info = line.split("-");
+						chats.add(new Chat(new ChatMate(info[0], info[1], info[2], file.getName())));
+						
+						while ((line = reader.readLine()) != null) {
+							// TODO: send / recieve
+							chats.get(chats.size() - 1).receiveMessage(line);
+						}
+					} catch (FileNotFoundException e) {
+						MyLogger.log("Failed to open chat file: " + file.getName());
+					} catch (IOException e) {
+						MyLogger.log("Failed to read chat from file: " + file.getName());
+					}
+					return;
+				}
+				
+				HashMap<String, Object> dati = (HashMap<String, Object>) dataTask.getResult().getValue();
+				if(dati != null && dati.containsKey("name") && dati.containsKey("info") && dati.containsKey("phone")){
+					chats.add(new Chat(new ChatMate(String.valueOf(dati.get("name")), String.valueOf(dati.get("info")), String.valueOf(dati.get("phone")), file.getName())));
+					
+					try {
+						BufferedReader reader = new BufferedReader(new FileReader(file));
+						String line = reader.readLine(); // prima linea contiene informazioni sull'utente
+						while ((line = reader.readLine()) != null) {
+							// TODO: send / recieve
+							chats.get(chats.size() - 1).receiveMessage(line);
+						}
+					} catch (FileNotFoundException e) {
+						MyLogger.log("Failed to open chat file: " + file.getName());
+					} catch (IOException e) {
+						MyLogger.log("Failed to read chat from file: " + file.getName());
+					}
+				}
+			});
+			/*
 			FirebaseHandler.download(FirebaseStorage.getInstance().getReference().child(file.getName()), 1024 * 1024, bytes -> {
 				chats.add(new Chat(new ChatMate(bytes, file.getName()))); // <- uid: nome del file, name: db
 				
@@ -51,7 +99,6 @@ public class User {
 					BufferedReader reader = new BufferedReader(new FileReader(file));
 					String line;
 					while ((line = reader.readLine()) != null) {
-						// TODO: send / recieve
 						chats.get(chats.size() - 1).receiveMessage(line);
 					}
 				} catch (FileNotFoundException e) {
@@ -63,21 +110,37 @@ public class User {
 				if(file.equals(files[files.length - 1]))
 					this.chatsLoaded = true;
 			}, e -> MyLogger.log("Can't get the info of user: " + file.getName()));
+			
+			 */
 		}
 	}
 	
-	public void createChat(ChatMate chatmate) {
-		// TODO: create file and add to the chats list (and create folder on db)
+	public boolean createChat(ChatMate chatmate, Context context) {
+		// TODO: add to the chats list on screen (and create folder on db)
+		
+		try (FileOutputStream fos = context.openFileOutput(chatmate.getUid(), Context.MODE_PRIVATE)) {
+			fos.write((chatmate.getName() + "-" + chatmate.getInfo() + "-" + chatmate.getPhone()).getBytes());
+			chats.add(new Chat(chatmate));
+			MyLogger.log("New chat created: " + chatmate.getUid());
+		} catch (FileNotFoundException e) {
+			MyLogger.log("CAN'T CREATE NEW CHAT FILE: " +  chatmate.getUid()); // todo: informa l'utente
+			return false;
+		} catch (IOException e) {
+			MyLogger.log("CAN'T WRITE ON THE NEW CHAT FILE: " +  chatmate.getUid());
+			return false;
+		}
+		
+		return true;
 	}
 	
+	/*
 	public void addChat(File chat) {
 		try {
 			BufferedReader reader = new BufferedReader(new FileReader(chat));
-			chats.add(new Chat(new ChatMate("test".getBytes(), "123")));
+			chats.add(new Chat(new ChatMate("test", "a", "3479978848", "123")));
 			
 			String line;
 			while((line = reader.readLine()) != null){
-				// TODO: send / recieve
 				chats.get(chats.size() - 1).receiveMessage(line);
 			}
 		} catch (FileNotFoundException e) {
@@ -86,6 +149,7 @@ public class User {
 			MyLogger.log("Failed to read chat from chat: " + chat.getName());
 		}
 	}
+	 */
 	
 	public static User get() {
 		if(user == null)
@@ -94,10 +158,7 @@ public class User {
 		return user;
 	}
 	
-	public byte[] toDatabase (){
-		return (name+"\n"+info+"\n").getBytes();
-	}
-	
+	/*
 	public boolean logIn(byte[] data) {
 		if (logged) {
 			MyLogger.log("INTERNAL USER ALREADY LOGGED IN");
@@ -112,6 +173,25 @@ public class User {
 		this.uid = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
 		
 		MyLogger.log("Internal user " + this.uid + " successfully logged in");
+		
+		return logged = true;
+	}
+	 */
+	public boolean logIn(String nome, String info){
+		if (logged) {
+			MyLogger.log("INTERNAL USER ALREADY LOGGED IN");
+			return false;
+		}
+		if(FirebaseAuth.getInstance().getCurrentUser() == null){
+			MyLogger.log("NO USER LOGGED IN TO FIREBASE, CAN'T LOGIN");
+			return false;
+		}
+		this.uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+		
+		this.name = nome;
+		this.info = info;
+		
+		MyLogger.log("Internal user " + this.uid + " logged in");
 		
 		return logged = true;
 	}

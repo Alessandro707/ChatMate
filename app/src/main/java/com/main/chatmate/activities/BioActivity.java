@@ -21,13 +21,19 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.main.chatmate.FirebaseHandler;
 import com.main.chatmate.MyLogger;
 import com.main.chatmate.R;
 import com.main.chatmate.chat.User;
 
 import java.io.ByteArrayOutputStream;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 public class BioActivity extends AppCompatActivity {
@@ -121,7 +127,16 @@ public class BioActivity extends AppCompatActivity {
                 ByteArrayOutputStream stream = new ByteArrayOutputStream();
                 imgp.compress(Bitmap.CompressFormat.JPEG, 100, stream);
                 byte[] imgprofilo = stream.toByteArray();
-
+    
+                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                assert user != null;
+                DatabaseReference databaseRef = FirebaseDatabase.getInstance().getReference().child("users/" + user.getUid());
+                Map<String, Object> userData = new HashMap<>();
+                userData.put("name", nome.getText().toString());
+                userData.put("info", info.getText().toString());
+                userData.put("phone", phone.getText().toString());
+                databaseRef.updateChildren(userData);
+                /*
                  FirebaseHandler.upload(FirebaseStorage.getInstance().getReference().child(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid()+"/info.chatmate"),
                          data,
                          taskSnapshot -> {
@@ -131,20 +146,22 @@ public class BioActivity extends AppCompatActivity {
                             MyLogger.log("Kant upload new user info to database: "+ failureExceptions.getMessage());
                          }
                          );
-
-                FirebaseHandler.upload(FirebaseStorage.getInstance().getReference().child(FirebaseAuth.getInstance().getCurrentUser().getUid()+"/img_profilo.jpeg"),
-                        imgprofilo,
+                */
+    
+                StorageReference storageRef = FirebaseStorage.getInstance().getReference().child(FirebaseAuth.getInstance().getCurrentUser().getUid()+"/img_profilo.jpeg");
+                FirebaseHandler.upload(storageRef, imgprofilo,
                         taskSnapshot -> {
                             MyLogger.log("User image profil udated :P");
-                            User.get().logIn(data);
-                            Intent intent = new Intent(BioActivity.this, MainActivity.class);
-                            startActivity(intent);
+                            User.get().logIn(nome.getText().toString(), info.getText().toString());
+                            Intent mainActivity = new Intent(BioActivity.this, MainActivity.class);
+                            startActivity(mainActivity);
                         },
                         failureExceptions -> {
                             MyLogger.log(":( user Image profil not uptaded: "+ failureExceptions.getMessage());
                         }
                 );
-
+                Intent loadingActivity = new Intent(BioActivity.this, LoadingActivity.class);
+                startActivity(loadingActivity);
             }
             else{
                 nome.setHint("COMPLETA QUESTO CAMPO!!!");
