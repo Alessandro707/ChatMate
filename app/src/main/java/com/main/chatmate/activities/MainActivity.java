@@ -19,6 +19,70 @@ import com.main.chatmate.chat.User;
 
 import java.util.HashMap;
 
+import com.fasterxml.jackson.core.async.ByteArrayFeeder;
+import com.fasterxml.jackson.core.async.ByteBufferFeeder;
+import com.fasterxml.jackson.core.async.NonBlockingInputFeeder;
+
+import com.firebase.ui.auth.ui.phone.CheckPhoneHandler;
+import com.firebase.ui.auth.ui.phone.CheckPhoneNumberFragment;
+import com.firebase.ui.auth.ui.phone.CountryListSpinner;
+import com.firebase.ui.auth.ui.phone.PhoneActivity;
+import com.firebase.ui.auth.ui.phone.PhoneVerification;
+import com.firebase.ui.auth.ui.phone.PhoneNumberVerificationHandler;
+import com.firebase.ui.auth.ui.phone.SpacedEditText;
+import com.firebase.ui.auth.ui.phone.SubmitConfirmationCodeFragment;
+import com.google.firebase.FirebaseException;
+import com.google.firebase.FirebaseTooManyRequestsException;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.PhoneAuthCredential;
+import com.google.firebase.auth.PhoneAuthOptions;
+import com.google.firebase.auth.PhoneAuthProvider;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.main.chatmate.MyLogger;
+import com.main.chatmate.R;
+import com.main.chatmate.chat.User;
+
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.storage.FirebaseStorage;
+import com.main.chatmate.FirebaseHandler;
+import com.main.chatmate.MyHelper;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Objects;
+import java.util.List;
+
+import android.app.Activity;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
+import android.net.Uri;
+import android.os.Bundle;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.appcompat.app.AlertDialog;
+
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+
+
 
 public class MainActivity extends AppCompatActivity {
 	

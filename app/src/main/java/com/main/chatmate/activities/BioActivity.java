@@ -34,7 +34,6 @@ import com.main.chatmate.chat.User;
 import java.io.ByteArrayOutputStream;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 public class BioActivity extends AppCompatActivity {
     ImageView avatar;
@@ -80,7 +79,7 @@ public class BioActivity extends AppCompatActivity {
                             MyLogger.log(urina.getPath());
                         }
                         else{
-                            MyLogger.log("INSERISCI UN IMMAGINE COGLIONE BASTARDO FIGLIO DI PUTTANA PEZZO DI MERDA TI STUPRO TUTTO L'ALBERO GENIALOGICO");
+                            MyLogger.log("INSERISCI UN IMMAGINE COGLIONE BASTARDO FIGLIO DI PUTTANA PEZZO DI MERDA TI STUPRO TUTTO L'ALBERO GEGNIALOGICO");
                         }
                     }
                 }
@@ -122,20 +121,17 @@ public class BioActivity extends AppCompatActivity {
 
         bottone.setOnClickListener((v -> {
             if(!nome.getText().toString().isEmpty()){
-                byte[] data = (nome.getText().toString()+"\n"+info.getText().toString()+"\n").getBytes();
-                Bitmap imgp= ((BitmapDrawable) avatar.getDrawable()).getBitmap();
-                ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                imgp.compress(Bitmap.CompressFormat.JPEG, 100, stream);
-                byte[] imgprofilo = stream.toByteArray();
-    
+                //byte[] data = (nome.getText().toString()+"\n"+info.getText().toString()+"\n").getBytes();
+                
                 FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
                 assert user != null;
-                DatabaseReference databaseRef = FirebaseDatabase.getInstance().getReference().child("users/" + user.getUid());
+                DatabaseReference databaseRef = FirebaseDatabase.getInstance().getReference();
                 Map<String, Object> userData = new HashMap<>();
                 userData.put("name", nome.getText().toString());
                 userData.put("info", info.getText().toString());
                 userData.put("phone", phone.getText().toString());
-                databaseRef.updateChildren(userData);
+                databaseRef.child("users/" + user.getUid()).updateChildren(userData);
+                databaseRef.child("numbers/" + phone.getText().toString()).setValue(user.getUid());
                 /*
                  FirebaseHandler.upload(FirebaseStorage.getInstance().getReference().child(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid()+"/info.chatmate"),
                          data,
@@ -148,6 +144,11 @@ public class BioActivity extends AppCompatActivity {
                          );
                 */
     
+                Bitmap imgp= ((BitmapDrawable) avatar.getDrawable()).getBitmap();
+                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                imgp.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+                byte[] imgprofilo = stream.toByteArray();
+                
                 StorageReference storageRef = FirebaseStorage.getInstance().getReference().child(FirebaseAuth.getInstance().getCurrentUser().getUid()+"/img_profilo.jpeg");
                 FirebaseHandler.upload(storageRef, imgprofilo,
                         taskSnapshot -> {
