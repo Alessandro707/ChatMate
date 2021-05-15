@@ -97,7 +97,7 @@ public class BioActivity extends AppCompatActivity {
 
         phone.setText(String.valueOf(getIntent().getExtras().get("Phone")));
 
-        avatar.setImageResource(R.mipmap.app_icon);
+        avatar.setImageResource(R.mipmap.scali);
         avatar.setOnClickListener(v -> {
             AlertDialog.Builder builder = new AlertDialog.Builder(BioActivity.this);
             builder.setTitle("Scegli la tua immagine di profilo :)");
@@ -153,9 +153,14 @@ public class BioActivity extends AppCompatActivity {
                 FirebaseHandler.upload(storageRef, imgprofilo,
                         taskSnapshot -> {
                             MyLogger.log("User image profil udated :P");
-                            User.get().logIn(nome.getText().toString(), info.getText().toString());
-                            Intent mainActivity = new Intent(BioActivity.this, MainActivity.class);
-                            startActivity(mainActivity);
+                            
+                            if(User.get().logIn(nome.getText().toString(), info.getText().toString())) {
+                                Intent mainActivity = new Intent(BioActivity.this, MainActivity.class);
+                                startActivity(mainActivity);
+                            }
+                            else{
+                                // todo: informa l'utente
+                            }
                         },
                         failureExceptions -> {
                             MyLogger.log(":( user Image profil not uptaded: "+ failureExceptions.getMessage());

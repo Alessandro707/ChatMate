@@ -4,9 +4,12 @@ import android.util.Log;
 
 
 public interface MyLogger {
-	String TAG = "ChatMate";
 	
-	static void log(String text){
-		Log.i(TAG, text);
+	static void log(Object text){
+		Log.i("ChatMate", String.valueOf(text));
+	}
+	
+	static void debug(String text){
+		Log.i("MyDebug", text);
 	}
 }

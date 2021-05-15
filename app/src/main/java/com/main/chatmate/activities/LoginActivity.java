@@ -79,12 +79,17 @@ public class LoginActivity extends AppCompatActivity {
 						MyLogger.log("User uid updated in database under phone: " + user.getPhoneNumber());
 						
 						String info = infoTask.getResult().getValue(String.class);
+						if(info == null)
+							info = "";
 						
-						MyLogger.log("Recovered user info from database");
-						User.get().logIn(name, info);
-						
-						Intent mainActivity = new Intent(LoginActivity.this, MainActivity.class);
-						startActivity(mainActivity);
+						if(User.get().logIn(name, info)) {
+							MyLogger.log("Recovered user info from database");
+							Intent mainActivity = new Intent(LoginActivity.this, MainActivity.class);
+							startActivity(mainActivity);
+						}
+						else{
+							// todo: informa l'utente
+						}
 					});
 				}
 				else {
@@ -160,7 +165,7 @@ public class LoginActivity extends AppCompatActivity {
 					if(nameTask.getResult() == null) { // if(dati == null) -> l'utente non esiste, va creato
 						MyLogger.log("Create new user info on database");
 						Intent bioActivity = new Intent(LoginActivity.this, BioActivity.class);
-						bioActivity.putExtra("Phone", numero.getText().toString());
+						bioActivity.putExtra("Phone", "+39" + numero.getText().toString());
 						startActivity(bioActivity);
 						return;
 					}
@@ -168,23 +173,26 @@ public class LoginActivity extends AppCompatActivity {
 					HashMap<String, Object> dati = (HashMap<String, Object>) nameTask.getResult().getValue();
 					if(dati != null && dati.containsKey("name") && dati.containsKey("info")) { // l'utente esiste
 						// todo: controllare che non sia sotto un numero diverso lo stesso uid
-						DatabaseReference databaseRefNumbers = FirebaseDatabase.getInstance().getReference().child("numbers/" + numero.getText().toString());
+						DatabaseReference databaseRefNumbers = FirebaseDatabase.getInstance().getReference().child("numbers/+39" + numero.getText().toString());
 						databaseRefNumbers.setValue(user.getUid());
-						MyLogger.log("User uid updated in database under phone: " + numero.getText().toString());
+						MyLogger.log("User uid updated in database under phone: +39" + numero.getText().toString());
 						
 						String name = String.valueOf(dati.get("name"));
 						String info = String.valueOf(dati.get("info"));
 						
-						MyLogger.log("Recovered user info from database");
-						User.get().logIn(name, info);
-						
-						Intent mainActivity = new Intent(LoginActivity.this, MainActivity.class);
-						startActivity(mainActivity);
+						if(User.get().logIn(name, info)) {
+							MyLogger.log("Recovered user info from database");
+							Intent mainActivity = new Intent(LoginActivity.this, MainActivity.class);
+							startActivity(mainActivity);
+						}
+						else {
+							// todo: informa l'utente
+						}
 					}
 					else{ // l'utente non esiste o è sprovvisto delle informazioni necessarie per loggarsi, creare un nuovo account
 						MyLogger.log("Create new user info on database");
 						Intent bioActivity = new Intent(LoginActivity.this, BioActivity.class);
-						bioActivity.putExtra("Phone", numero.getText().toString());
+						bioActivity.putExtra("Phone", "+39" + numero.getText().toString());
 						startActivity(bioActivity);
 					}
 				});

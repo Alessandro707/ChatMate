@@ -108,7 +108,6 @@ public class ContactsActivity extends AppCompatActivity {
 			MyLogger.log("Number of contacts loaded:  " + contacts.size());
 			
 			ContactAdapter adapterPazzo = new ContactAdapter(contacts, this.getApplicationContext());
-			
 			contactsView.setLayoutManager(new LinearLayoutManager(this));
 			contactsView.setAdapter(adapterPazzo);
 			

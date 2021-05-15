@@ -7,84 +7,25 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ListView;
-import android.widget.TextView;
 
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.main.chatmate.chat.ChatAdapter;
+import com.main.chatmate.chat.Chat;
+import com.main.chatmate.chat.ChatsAdapter;
 import com.main.chatmate.MyLogger;
 import com.main.chatmate.R;
 import com.main.chatmate.chat.ChatMate;
 import com.main.chatmate.chat.User;
 
-import java.util.HashMap;
-
-import com.fasterxml.jackson.core.async.ByteArrayFeeder;
-import com.fasterxml.jackson.core.async.ByteBufferFeeder;
-import com.fasterxml.jackson.core.async.NonBlockingInputFeeder;
-
-import com.firebase.ui.auth.ui.phone.CheckPhoneHandler;
-import com.firebase.ui.auth.ui.phone.CheckPhoneNumberFragment;
-import com.firebase.ui.auth.ui.phone.CountryListSpinner;
-import com.firebase.ui.auth.ui.phone.PhoneActivity;
-import com.firebase.ui.auth.ui.phone.PhoneVerification;
-import com.firebase.ui.auth.ui.phone.PhoneNumberVerificationHandler;
-import com.firebase.ui.auth.ui.phone.SpacedEditText;
-import com.firebase.ui.auth.ui.phone.SubmitConfirmationCodeFragment;
-import com.google.firebase.FirebaseException;
-import com.google.firebase.FirebaseTooManyRequestsException;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.PhoneAuthCredential;
-import com.google.firebase.auth.PhoneAuthOptions;
-import com.google.firebase.auth.PhoneAuthProvider;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.main.chatmate.MyLogger;
-import com.main.chatmate.R;
-import com.main.chatmate.chat.User;
-
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.storage.FirebaseStorage;
-import com.main.chatmate.FirebaseHandler;
-import com.main.chatmate.MyHelper;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Objects;
-import java.util.List;
-
-import android.app.Activity;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.Color;
-import android.graphics.drawable.BitmapDrawable;
-import android.net.Uri;
-import android.os.Bundle;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.TextView;
-
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.appcompat.app.AlertDialog;
-
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-
-
+import java.util.HashMap;
 
 public class MainActivity extends AppCompatActivity {
+	private ListView chats;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -92,31 +33,29 @@ public class MainActivity extends AppCompatActivity {
 		setContentView(R.layout.activity_main);
 		MyLogger.log("Main activity created successfully");
 		
-		
-		TextView chatcount = findViewById(R.id.main_username_textView);
 		Button newChat = findViewById(R.id.main_newChat_button);
-		ListView chats = findViewById(R.id.main_chats_listView);
+		Button delete = findViewById(R.id.main_deleteChats_button);
+		chats = findViewById(R.id.main_chats_listView);
 		
-		// TODO: show initial chats
 		if(!User.get().areChatsLoaded()) {
 			User.get().loadChats(getApplicationContext());
 			
-			ChatAdapter adapter = new ChatAdapter();
-			chats.setAdapter(adapter);
+			MyLogger.log("Chats loaded: " + User.get().getChats().size());
 		}
-		chatcount.setText(User.get().getChats().size() + "");
 		
-		newChat.setOnClickListener(this::selectNewChatmate);
+		ChatsAdapter adapter = new ChatsAdapter();
+		chats.setAdapter(adapter);
+		
+		newChat.setOnClickListener(v -> {
+			Intent contactsActivity = new Intent(MainActivity.this, ContactsActivity.class);
+			startActivity(contactsActivity);
+		});
 		
 		if (getIntent().getExtras() != null && getIntent().getExtras().get("newChatmatePhone") != null){
 			createNewChat(String.valueOf(getIntent().getExtras().get("newChatmatePhone")));
 		}
-	}
-	
-	private void selectNewChatmate(View view) {
-		Intent contactsActivity = new Intent(MainActivity.this, ContactsActivity.class);
-		startActivity(contactsActivity);
 		
+		delete.setOnClickListener(this::delete);
 	}
 	
 	private void createNewChat(String phone) {
@@ -129,13 +68,20 @@ public class MainActivity extends AppCompatActivity {
 				MyLogger.log("Creating new chat failed: " + phoneTask.getException());
 				return;
 			}
-			if(phoneTask.getResult() == null){
+			if(phoneTask.getResult() == null) {
 				// TODO: l'utente non esiste, non si può creare la chat, mandare invito a chatmate al contatto selezionato
 				MyLogger.log("The contact selected doesn't have a chatmate account!");
 				return;
 			}
 			
 			String uid = phoneTask.getResult().getValue(String.class);
+			
+			if(uid == null){
+				// TODO: l'utente non esiste, non si può creare la chat, mandare invito a chatmate al contatto selezionato
+				MyLogger.log("The contact selected doesn't have a chatmate account!");
+				return;
+			}
+			
 			databaseRef.child("users/" + uid).get().addOnCompleteListener(mateTask -> {
 				if (!mateTask.isSuccessful()) {
 					// todo: avverti l'utente dell'errore
@@ -150,15 +96,86 @@ public class MainActivity extends AppCompatActivity {
 				}
 				
 				HashMap<String, Object> dati = (HashMap<String, Object>) mateTask.getResult().getValue();
-				if(dati != null && dati.containsKey("name") && dati.containsKey("info") && dati.containsKey("phone")){
-					User.get().createChat(new ChatMate(String.valueOf(dati.get("name")), String.valueOf(dati.get("info")), String.valueOf(dati.get("phone")), uid), getApplicationContext());
+				if(dati != null && dati.containsKey("name") && dati.containsKey("info")){
+					if(!User.get().createChat(new ChatMate(String.valueOf(dati.get("name")), String.valueOf(dati.get("info")), phone, uid), getApplicationContext(), chats)){
+						// todo: informa l'utente
+					}
 				}
 				else {// l'utente non dispone dei dati sufficienti, non è possibile creare la chat
 					MyLogger.log("The contact selected has a chatmate account but without the necessary info");
 				}
 			});
 		});
-		/*
+		
+	}
+	
+	private void delete(View v){
+		File[] files = getApplicationContext().getFilesDir().listFiles();
+		if(files == null)
+			return;
+		int nChats = files.length;
+		for(File file : files){ // nome del file è l'UID
+			if(!file.delete())
+				MyLogger.log("Failed to delete file: " + file.getName());
+		}
+		MyLogger.log("Chats deleted: " + nChats);
+	}
+}
+
+
+
+/*
+rtdb/
+	users/
+		joidoh49898nogvsef/
+			name:"badinelli"
+			info:null
+			number:3582095810
+		02rwhvwieu34dad09u/
+			name:"badinelli"
+			info:null
+			number:3582095810
+	numbers/
+		3582095810:joidoh49898nogvsef
+	chats/
+		joidoh49898nogvsef/
+			02rwhvwieu34dad09u/
+			
+	
+Quando un utente viene creato, si crea anche una cartella in Firebase Storage con il suo id (i guess)
+Quella cartella conterrà tutti i file (chat.chatmate per la chat) che l'altro utente deve ANCORA ricevere
+al momento della ricezione devono essere eliminati.
+
+50€ scaro
+2€/h gio * 2
+
+FORMATO CHAT
+- = testo
++ = documento
+& = altro utente nella chat
+id: = altri utenti in un gruppo
+$ = io
+
+esempio:
+&-ciao
+$-send nudes
+&+hentai.png <- nome del file da scaricare sul server, poi convertito in percorso nel file system del ricevente
+$+baeh.mp3
+
+info.chatmate:
+nome\n
+lunghezza del membro\n
+
+
+https://firebase.google.com/docs/storage/android/download-files per i download nel filesystem del dispositivo
+FirebaseUI per download di immagini
+
+// todo: chat col bot all'inizio come tutorial, punti chat con cui sbloccare emote che si ottengono completando obiettivi
+// todo: app incrociata con quella di yaya
+*/
+
+
+/*
 		final String[] filename = new String[1]; // user.uid
 	 	DatabaseReference reference = FirebaseDatabase.getInstance().getReference().child(phone);
 		reference.addChildEventListener(new ChildEventListener() {
@@ -195,58 +212,7 @@ public class MainActivity extends AppCompatActivity {
 			}
 		}
 		else {
-			// todo: mandare invito a quel contatto per downloaddare chattomatto
 			MyLogger.log("Contact selected to create new chat doesn't have chatmate");
 		}
 		
 		 */
-	}
-}
-
-/*
-rtdb/
-	users/
-		joidoh49898nogvsef/
-			name:"badinelli"
-			info:null
-			number:3582095810
-		02rwhvwieu34dad09u/
-			name:"badinelli"
-			info:null
-			number:3582095810
-	numbers/
-		3582095810:joidoh49898nogvsef
-	chats/
-		joidoh49898nogvsef/
-			02rwhvwieu34dad09u/
-			
-	
-Quando un utente viene creato, si crea anche una cartella in Firebase Storage con il suo id (i guess)
-Quella cartella conterrà tutti i file (chat.chatmate per la chat) che l'altro utente deve ANCORA ricevere
-al momento della ricezione devono essere eliminati.
-
-
-FORMATO CHAT
-- = testo
-+ = documento
-& = altro utente nella chat
-id: = altri utenti in un gruppo
-$ = io
-
-esempio:
-&-ciao
-$-send nudes
-&+hentai.png <- nome del file da scaricare sul server, poi convertito in percorso nel file system del ricevente
-$+baeh.mp3
-
-info.chatmate:
-nome\n
-lunghezza del membro\n
-
-
-https://firebase.google.com/docs/storage/android/download-files per i download nel filesystem del dispositivo
-FirebaseUI per download di immagini
-
-// todo: chat col bot all'inizio come tutorial, punti chat con cui sbloccare emote che si ottengono completando obiettivi
-// todo: app incrociata con quella di yaya
-*/

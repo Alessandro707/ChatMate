@@ -31,9 +31,9 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ViewHold
 				context.startActivity(mainActivity);
 			});
 			
-			textView = (TextView) view.findViewById(R.id.contact_name);
+			textView = view.findViewById(R.id.contact_name);
 			
-			// TODO: add image from db
+			// TODO: add image
 		}
 		
 		public TextView getTextView() {
