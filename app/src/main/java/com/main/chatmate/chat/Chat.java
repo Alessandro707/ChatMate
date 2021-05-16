@@ -1,4 +1,4 @@
-package com.main.chatmate;
+package com.main.chatmate.chat;
 
 import java.util.ArrayList;
 
@@ -17,5 +17,7 @@ public class Chat {
 	public void receiveMessage(String message){
 		messages.add(new Message(message));
 	}
-	
+
+	public ChatMate getChatmate(){ return this.chatmate;}
+
 }

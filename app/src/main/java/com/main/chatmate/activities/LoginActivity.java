@@ -11,6 +11,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseException;
 import com.google.firebase.FirebaseTooManyRequestsException;
 import com.google.firebase.auth.FirebaseAuth;
@@ -23,10 +25,9 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.main.chatmate.BioActivity;
 import com.main.chatmate.FirebaseHandler;
-import com.main.chatmate.MyHelper;
 import com.main.chatmate.MyLogger;
 import com.main.chatmate.R;
-import com.main.chatmate.User;
+import com.main.chatmate.chat.User;
 
 import java.util.concurrent.TimeUnit;
 
@@ -58,11 +59,14 @@ public class LoginActivity extends AppCompatActivity {
 				
 				Intent mainActivity = new Intent(LoginActivity.this, MainActivity.class);
 				startActivity(mainActivity);
-			}, e -> {});
-			
-			Intent loadActivity = new Intent(LoginActivity.this, LoadingActivity.class);
-			startActivity(loadActivity);
+			}, e -> {
+				MyLogger.log("User exists but info file not found"); // then do nothing
+			});
 		}
+		// TODO: remove
+		Intent tempActivity = new Intent(LoginActivity.this, BioActivity.class);
+		tempActivity.putExtra("Phone", "3479978847");
+		startActivity(tempActivity);
 		// utente non loggato, oh shiet
 	}
 	
@@ -103,7 +107,7 @@ public class LoginActivity extends AppCompatActivity {
 						if(item.getName().equals("info.chatmate")){
 							MyLogger.log("Recover user info from database");
 							
-							User.get().logIn(item.getBytes(1024 * 1024).getResult());
+							item.getBytes(1024 * 1024).addOnSuccessListener(bytes -> User.get().logIn(bytes));
 							
 							Intent mainActivity = new Intent(LoginActivity.this, MainActivity.class);
 							startActivity(mainActivity);
@@ -189,13 +193,13 @@ public class LoginActivity extends AppCompatActivity {
 	private PhoneAuthProvider.OnVerificationStateChangedCallbacks initCallback(){
 		return new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
 			@Override
-			public void onVerificationCompleted(PhoneAuthCredential credential) {
+			public void onVerificationCompleted(@NonNull PhoneAuthCredential credential) {
 				MyLogger.log("Verification completed");
 				signInWithPhoneAuthCredential(credential); // credenziali inserite corrette, accesso
 			}
 			
 			@Override
-			public void onVerificationFailed(FirebaseException e) {
+			public void onVerificationFailed(@NonNull FirebaseException e) {
 				MyLogger.log("Login verification failed:");
 				if (e instanceof FirebaseAuthInvalidCredentialsException) {
 					// Invalid request

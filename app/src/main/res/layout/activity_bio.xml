@@ -9,6 +9,7 @@
         android:id="@+id/linearLayout"
         android:layout_width="313dp"
         android:layout_height="574dp"
+        android:gravity="center"
         android:orientation="vertical"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -20,8 +21,8 @@
 
         <ImageView
             android:id="@+id/bio_avatar_imageView"
-            android:layout_width="match_parent"
-            android:layout_height="162dp"
+            android:layout_width="160dp"
+            android:layout_height="160dp"
             tools:srcCompat="@tools:sample/avatars" />
 
         <Space

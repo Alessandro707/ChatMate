@@ -7,15 +7,8 @@
 	android:layout_width="match_parent"
 	android:layout_height="match_parent">
 	
-	<Button
-		android:id="@+id/main_newChat_button"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:text="New"
-		android:layout_gravity="bottom|end" />
-	
 	<com.google.android.material.appbar.AppBarLayout
-		android:id="@+id/appbar_main"
+		android:id="@+id/appbar_main2"
 		
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content">
@@ -33,41 +26,26 @@
 			
 			
 			<TextView
-				android:id="@+id/main_title_textView"
+				android:id="@+id/main_title_textView2"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:text="@string/title"
-				android:textSize="40sp" />
-			
-			<TextView
-				android:id="@+id/main_username_textView"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:text="username"
-				android:textAlignment="viewEnd"
 				android:textSize="40sp" />
 		
 		</com.google.android.material.appbar.CollapsingToolbarLayout>
 	</com.google.android.material.appbar.AppBarLayout>
 	
 	<androidx.core.widget.NestedScrollView
-		android:id="@+id/nestedScrollView"
+		android:id="@+id/nestedScrollView2"
 		android:layout_width="match_parent"
-		android:background="@color/white"
 		android:layout_height="match_parent"
+		android:background="@color/white"
 		app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
 		
-		<androidx.constraintlayout.widget.ConstraintLayout
+		<ListView
+			android:id="@+id/contacts_contacts_listView2"
 			android:layout_width="match_parent"
-			android:layout_height="match_parent"
-			tools:context=".activities.MainActivity" >
-			
-			<ListView
-				android:id="@+id/main_chats_listView"
-				android:layout_width="match_parent"
-				android:layout_height="match_parent" />
-		</androidx.constraintlayout.widget.ConstraintLayout>
-	
+			android:layout_height="wrap_content" />
 	</androidx.core.widget.NestedScrollView>
 
 

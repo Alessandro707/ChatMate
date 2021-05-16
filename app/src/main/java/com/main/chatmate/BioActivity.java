@@ -27,6 +27,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.storage.FirebaseStorage;
 import com.main.chatmate.activities.MainActivity;
+import com.main.chatmate.chat.User;
 
 import java.io.ByteArrayOutputStream;
 
