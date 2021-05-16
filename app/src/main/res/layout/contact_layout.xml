@@ -3,28 +3,31 @@
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
-	
+
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content">
-	
+
 	<com.google.android.material.imageview.ShapeableImageView
 		android:id="@+id/contact_img"
-		android:layout_width="80sp"
-		android:layout_height="80sp"
+		android:layout_width="80dp"
+		android:layout_height="80dp"
+		android:layout_marginStart="4dp"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toTopOf="parent"
 		app:shapeAppearanceOverlay="@style/circleImageView"
 		tools:srcCompat="@tools:sample/avatars" />
-	
+
 	<TextView
 		android:id="@+id/contact_name"
-		android:layout_width="0dp"
-		android:layout_height="64sp"
-		android:layout_marginTop="16dp"
+		android:layout_width="279dp"
+		android:layout_height="32dp"
+		android:layout_marginStart="8dp"
 		android:text="TextView"
 		android:textColor="@color/black"
 		android:textSize="22sp"
+		app:layout_constraintBottom_toBottomOf="parent"
 		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintHorizontal_bias="0.0"
 		app:layout_constraintStart_toEndOf="@+id/contact_img"
 		app:layout_constraintTop_toTopOf="parent" />
 

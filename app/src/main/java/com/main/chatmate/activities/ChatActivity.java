@@ -1,51 +1,43 @@
 package com.main.chatmate.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Button;
-import android.widget.ListView;
+import android.widget.EditText;
+import android.widget.ScrollView;
+
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.main.chatmate.MyLogger;
 import com.main.chatmate.R;
-import com.main.chatmate.chat.MessagesAdapter;
 import com.main.chatmate.chat.User;
 
-
 public class ChatActivity extends AppCompatActivity {
+    Button backButton;
+    Button sendButton;
+    ScrollView corpo;
+    EditText writeBox;
 
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_chat);
-		
-		int chat = (int)getIntent().getExtras().get("chat");
+    @Override
+    public void onCreate( Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_chat);
+        backButton= findViewById(R.id.chat_back_Button);
+        sendButton= findViewById(R.id.chat_send_Button);
+        writeBox = findViewById(R.id.chat_writeBox_editTextTextMultiLine);
+        backButton.setOnClickListener(v -> {
+            Intent back = new Intent(ChatActivity.this, ContactsActivity.class);
+            startActivity(back);
+        });
 
-		ListView lista = findViewById(R.id.chat_messages_listView);
-		MessagesAdapter adapter = new MessagesAdapter(chat);
-		lista.setAdapter(adapter);
-		
-		Button bottonePazzo = findViewById(R.id.testoloPazzolo);
-		bottonePazzo.setOnClickListener(new View.OnClickListener() {
-			int count =0;
-			@Override
-			public void onClick(View v) {
-				User.get().getChats().get(chat).sendMessage("Send badinellis " + count);
-				count++;
-				adapter.notifyDataSetChanged();
-			}
-		});
-		Button bottonePazzo2 = findViewById(R.id.buttonbotton);
-		bottonePazzo2.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				User.get().getChats().get(chat).receiveMessage("Nope");
-				adapter.notifyDataSetChanged();
-			}
-		});
-		
-		MyLogger.log("Chat activity created successfully");
-	}
-	
+        sendButton.setOnClickListener(v -> {
+            if(!writeBox.getText().toString().isEmpty()){
+                int nchat = (int)getIntent().getExtras().get("chat");
+                User.get().getChats().get(nchat).sendMessage(writeBox.getText().toString());
+            }
+            //corpo.addView(d);
+        });
+
+
+    }
 }
