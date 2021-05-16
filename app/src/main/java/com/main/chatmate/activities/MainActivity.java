@@ -10,22 +10,19 @@ import android.widget.ListView;
 
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.main.chatmate.chat.Chat;
-import com.main.chatmate.chat.ChatsAdapter;
 import com.main.chatmate.MyLogger;
 import com.main.chatmate.R;
 import com.main.chatmate.chat.ChatMate;
+import com.main.chatmate.chat.ChatsAdapter;
 import com.main.chatmate.chat.User;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.HashMap;
+import java.util.Map;
 
+// https://github.com/Alessandro707/ChatMate
 public class MainActivity extends AppCompatActivity {
-	private ListView chats;
+	private boolean chatsLoaded = false;
+	private ChatsAdapter chatsAdapter;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -34,17 +31,16 @@ public class MainActivity extends AppCompatActivity {
 		MyLogger.log("Main activity created successfully");
 		
 		Button newChat = findViewById(R.id.main_newChat_button);
-		Button delete = findViewById(R.id.main_deleteChats_button);
-		chats = findViewById(R.id.main_chats_listView);
+		Button delete = findViewById(R.id.main_deleteChats_button2);
+		ListView chats = findViewById(R.id.main_chats_listView);
 		
-		if(!User.get().areChatsLoaded()) {
+		if(!chatsLoaded) {
 			User.get().loadChats(getApplicationContext());
-			
-			MyLogger.log("Chats loaded: " + User.get().getChats().size());
+			chatsLoaded = true;
 		}
 		
-		ChatsAdapter adapter = new ChatsAdapter();
-		chats.setAdapter(adapter);
+		chatsAdapter = new ChatsAdapter();
+		chats.setAdapter(chatsAdapter);
 		
 		newChat.setOnClickListener(v -> {
 			Intent contactsActivity = new Intent(MainActivity.this, ContactsActivity.class);
@@ -55,8 +51,9 @@ public class MainActivity extends AppCompatActivity {
 			createNewChat(String.valueOf(getIntent().getExtras().get("newChatmatePhone")));
 		}
 		
-		delete.setOnClickListener(this::delete);
+		delete.setOnClickListener(this::deleteAllChats);
 	}
+	
 	
 	private void createNewChat(String phone) {
 		MyLogger.log("Creating new chat with: " + phone);
@@ -95,30 +92,30 @@ public class MainActivity extends AppCompatActivity {
 					return;
 				}
 				
-				HashMap<String, Object> dati = (HashMap<String, Object>) mateTask.getResult().getValue();
-				if(dati != null && dati.containsKey("name") && dati.containsKey("info")){
-					if(!User.get().createChat(new ChatMate(String.valueOf(dati.get("name")), String.valueOf(dati.get("info")), phone, uid), getApplicationContext(), chats)){
-						// todo: informa l'utente
+				try {
+					HashMap<String, Object> dati = (HashMap<String, Object>) mateTask.getResult().getValue();
+					if (dati != null && dati.containsKey("name") && dati.containsKey("info")) {
+						ChatMate chatmate = new ChatMate(String.valueOf(dati.get("name")), String.valueOf(dati.get("info")), phone, uid);
+						if (User.get().createChat(chatmate, getApplicationContext()).equals(User.CreateResult.OK)) {
+							chatsAdapter.notifyDataSetChanged();
+						} else {
+							// todo: informa l'utente
+						}
+					} else {// l'utente non dispone dei dati sufficienti, non è possibile creare la chat
+						MyLogger.log("The contact selected has a chatmate account but without the necessary info");
 					}
-				}
-				else {// l'utente non dispone dei dati sufficienti, non è possibile creare la chat
-					MyLogger.log("The contact selected has a chatmate account but without the necessary info");
+				}catch (ClassCastException e){
+					MyLogger.log("WRONG FORMAT OF THE CHATMATE'S DATA FROM RTDB: " + e.getMessage());
 				}
 			});
 		});
 		
 	}
 	
-	private void delete(View v){
-		File[] files = getApplicationContext().getFilesDir().listFiles();
-		if(files == null)
-			return;
-		int nChats = files.length;
-		for(File file : files){ // nome del file è l'UID
-			if(!file.delete())
-				MyLogger.log("Failed to delete file: " + file.getName());
-		}
-		MyLogger.log("Chats deleted: " + nChats);
+	
+	private void deleteAllChats(View v){
+		User.get().deleteAllChats(getApplicationContext());
+		chatsAdapter.notifyDataSetChanged();
 	}
 }
 

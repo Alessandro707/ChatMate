@@ -23,13 +23,15 @@ public class ChatActivity extends AppCompatActivity {
 		int chat = (int)getIntent().getExtras().get("chat");
 
 		ListView lista = findViewById(R.id.chat_messages_listView);
-		lista.setAdapter(new MessagesAdapter(chat));
+		MessagesAdapter adapter = new MessagesAdapter(chat);
+		lista.setAdapter(adapter);
 		
 		Button bottonePazzo = findViewById(R.id.testoloPazzolo);
 		bottonePazzo.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				User.get().getChats().get(chat).sendMessage("Send boobies");
+				User.get().getChats().get(chat).sendMessage("Send badinellis");
+				adapter.notifyDataSetChanged();
 			}
 		});
 		

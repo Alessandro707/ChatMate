@@ -1,36 +1,24 @@
 package com.main.chatmate.chat;
 
 import android.content.Context;
-import android.view.ViewGroup;
-import android.widget.ListView;
 
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.storage.FirebaseStorage;
-import com.main.chatmate.FirebaseHandler;
-import com.main.chatmate.MyHelper;
 import com.main.chatmate.MyLogger;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Objects;
 
 public class User {
 	private static User user;
 	private boolean logged = false;
 	private String name = "", uid = "", info = "";
 	private final ArrayList<Chat> chats = new ArrayList<>();
-	private boolean chatsLoaded = false;
 	
 	private User() {
 	
@@ -42,9 +30,6 @@ public class User {
 	public final ArrayList<Chat> getChats() {
 		return chats;
 	}
-	public boolean areChatsLoaded() {
-		return chatsLoaded;
-	}
 	
 	public void loadChats(Context context) {
 		File[] files = context.getFilesDir().listFiles();
@@ -53,72 +38,88 @@ public class User {
 		for(File file : files){ // nome del file è l'UID
 			try {
 				BufferedReader reader = new BufferedReader(new FileReader(file));
+				
 				String line = reader.readLine();
 				String[] info = line.split("-");
 				chats.add(new Chat(new ChatMate(info[0], info[1], info[2], file.getName()), file));
 				
-				while ((line = reader.readLine()) != null) {
-					// TODO: send / recieve
-					MyLogger.log(line);
-					chats.get(chats.size() - 1).receiveMessage(line);
-				}
 				reader.close();
 			} catch (FileNotFoundException e) {
-				MyLogger.log("Failed to open chat file: " + file.getName());
+				MyLogger.log("Failed to open chat file " + file.getName() + ": " + e.getMessage());
 			} catch (IOException e) {
-				MyLogger.log("Failed to read chat from file: " + file.getName());
+				MyLogger.log("Failed to read chat from file " + file.getName() + ": " + e.getMessage());
 			}
 		}
 		MyLogger.log("Chats loaded: " + chats.size());
+		
+		// todo: sort
+	}
+	
+	public void loadChat(int position, File chat){
+		try {
+			BufferedReader reader = new BufferedReader(new FileReader(chat));
+			reader.readLine();
+			String line;
+			while ((line = reader.readLine()) != null) {
+				if(line.startsWith("&-"))
+					chats.get(position).loadMessage(line.substring(2), true);
+				else if(line.startsWith("$-"))
+					chats.get(position).loadMessage(line.substring(2), false);
+			}
+			reader.close();
+		} catch (FileNotFoundException e) {
+			MyLogger.log("Failed to open chat file " + chat.getName() + ": " + e.getMessage());
+		} catch (IOException e) {
+			MyLogger.log("Failed to read chat from file " + chat.getName() + ": " + e.getMessage());
+		}
 	}
 	
 	
-	public boolean createChat(ChatMate chatmate, Context context, ListView listView) {
-		// TODO: add to the chats list on screen (and create folder on db)
-		
-		File[] files = context.getFilesDir().listFiles();
-		boolean exists = false;
-		if(files != null) {
-			for (File file : files) {
-				if (file.getName().equals(chatmate.getUid())) {
-					exists = true;
-					break;
-				}
-			}
-		}
-		if(exists){
+	public CreateResult createChat(ChatMate chatmate, Context context) {
+		File file = new File(context.getFilesDir(), chatmate.getUid());
+		if(file.exists()){
 			MyLogger.log("Chat with " + chatmate.getUid() + " already exists");
 			// todo: informa l'utente / non mostrare nell'elenco dei contatti
+			return CreateResult.EXISTS;
 		}
-		else {
-			
-			/*
-			try (FileOutputStream fos = context.openFileOutput(chatmate.getUid(), Context.MODE_PRIVATE)) {
-				fos.write((chatmate.getName() + "-" + chatmate.getInfo() + "-" + chatmate.getPhone()).getBytes());
-				chats.add(new Chat(chatmate, ));
-				fos.close();
-				MyLogger.log("New chat created: " + chatmate.getUid());
-			*/
+		else{
+			try {
+				boolean created = file.createNewFile();
+				if(!created)
+					return CreateResult.ERROR;
+			} catch (IOException e) {
+				MyLogger.log("CAN'T CREATE NEW CHAT FILE " + chatmate.getUid() + ": " + e.getMessage());
+			}
 			try{
-				File file = new File(context.getFilesDir(), chatmate.getUid());
 				BufferedWriter writer = new BufferedWriter(new FileWriter(file));
 				
-				writer.write(chatmate.getName() + "-" + chatmate.getInfo() + "-" + chatmate.getPhone());
+				writer.write(chatmate.getName() + "-" + chatmate.getInfo() + "-" + chatmate.getPhone() + "\n");
 				chats.add(new Chat(chatmate, file));
-				listView.setAdapter(listView.getAdapter()); // todo: bleah
 				
 				writer.close();
 				MyLogger.log("New chat created: " + chatmate.getUid());
 			} catch (FileNotFoundException e) {
-				MyLogger.log("CAN'T CREATE NEW CHAT FILE: " + chatmate.getUid());
-				return false;
+				MyLogger.log("CAN'T OPEN NEW CHAT FILE " + chatmate.getUid() + ": " + e.getMessage()); // todo: fare tutti i log di errori in full caps e mettere e.getMessage()
+				return CreateResult.ERROR;
 			} catch (IOException e) {
-				MyLogger.log("CAN'T WRITE ON THE NEW CHAT FILE: " + chatmate.getUid());
-				return false;
+				MyLogger.log("CAN'T WRITE ON A NEW CHAT FILE " + chatmate.getUid() + ": " + e.getMessage());
+				return CreateResult.ERROR;
 			}
 		}
-		
-		return true;
+		return CreateResult.OK;
+	}
+	
+	public void deleteAllChats(Context context){
+		this.chats.clear();
+		File[] files = context.getFilesDir().listFiles();
+		if(files == null)
+			return;
+		int nChats = files.length;
+		for(File file : files){ // nome del file è l'UID
+			if(!file.delete())
+				MyLogger.log("Failed to delete file: " + file.getName());
+		}
+		MyLogger.log("Chats deleted: " + nChats);
 	}
 	
 	
@@ -152,9 +153,13 @@ public class User {
 	public void logOut() {
 		name = "";
 		chats.clear();
-		chatsLoaded = false;
 		MyLogger.log("Internal user " + this.uid + " logged out");
 		logged = false;
+	}
+	
+	
+	public enum CreateResult{
+		OK, ERROR, EXISTS;
 	}
 }
 

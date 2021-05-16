@@ -22,6 +22,8 @@ import com.main.chatmate.MyLogger;
 import com.main.chatmate.R;
 import com.main.chatmate.activities.ChatActivity;
 
+import java.io.File;
+
 public class ChatsAdapter extends BaseAdapter {
 	
 	@Override
@@ -54,7 +56,8 @@ public class ChatsAdapter extends BaseAdapter {
 		
 		FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 		assert user != null;
-		FirebaseHandler.download(FirebaseStorage.getInstance().getReference().child(User.get().getChats().get(position).getChatmate().getUid() + "/img_profilo.jpeg"), 1024 * 1024,
+		String chatmateUid = User.get().getChats().get(position).getChatmate().getUid();
+		FirebaseHandler.download(FirebaseStorage.getInstance().getReference().child(chatmateUid + "/img_profilo.jpeg"), 1024 * 1024,
 				bytes -> {
 					Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
 					img_profilo.setImageBitmap(bitmap);
@@ -64,8 +67,12 @@ public class ChatsAdapter extends BaseAdapter {
 					img_profilo.setImageResource(R.mipmap.mate);
 				});
 		
+		View finalConvertView = convertView;
 		convertView.setOnClickListener(v -> {
-			MyLogger.log("Opening chat with: " + User.get().getChats().get(position).getChatmate().getUid());
+			MyLogger.log("Opening chat with: " + chatmateUid);
+			
+			User.get().loadChat(position, new File(finalConvertView.getContext().getFilesDir(), chatmateUid));
+			
 			Intent chat = new Intent(parent.getContext(), ChatActivity.class);
 			chat.putExtra("chat", position);
 			parent.getContext().startActivity(chat);
