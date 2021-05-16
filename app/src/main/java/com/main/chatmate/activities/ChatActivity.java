@@ -28,9 +28,19 @@ public class ChatActivity extends AppCompatActivity {
 		
 		Button bottonePazzo = findViewById(R.id.testoloPazzolo);
 		bottonePazzo.setOnClickListener(new View.OnClickListener() {
+			int count =0;
 			@Override
 			public void onClick(View v) {
-				User.get().getChats().get(chat).sendMessage("Send badinellis");
+				User.get().getChats().get(chat).sendMessage("Send badinellis " + count);
+				count++;
+				adapter.notifyDataSetChanged();
+			}
+		});
+		Button bottonePazzo2 = findViewById(R.id.buttonbotton);
+		bottonePazzo2.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				User.get().getChats().get(chat).receiveMessage("Nope");
 				adapter.notifyDataSetChanged();
 			}
 		});

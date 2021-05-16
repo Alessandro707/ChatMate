@@ -49,7 +49,7 @@ public class Chat {
 	
 	public void sendMessage(String message, Context context){
 		try (FileOutputStream fos = context.openFileOutput(file.getName(), Context.MODE_APPEND)) {
-			fos.write(message.getBytes());
+			fos.write((message + "\n").getBytes());
 			fos.close();
 			messages.add(new Message(message, false));
 			MyLogger.log("Message sent: " + message);
@@ -63,7 +63,7 @@ public class Chat {
 			return;
 		}
 		try {
-			writer.write("&-" + message);
+			writer.write("&-" + message + "\n");
 			MyLogger.log("Message sent: " + message);
 			messages.add(new Message(message, true));
 			// todo: rimuovi dal rtdb
