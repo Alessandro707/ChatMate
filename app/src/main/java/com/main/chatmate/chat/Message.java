@@ -1,16 +1,20 @@
 package com.main.chatmate.chat;
 
-
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-
 public class Message {
 	private final String message;
-	private final LocalDateTime data;
+	// private final DateTime data; // TODO: implement
+	private final boolean received;
 	
-	public Message (String message) {
+	public Message (String message, boolean received) {
 		this.message = message;
-		this.data = LocalDateTime.now(ZoneId.of("Europe/Italy"));
+		this.received = received;
 	}
-
+	
+	public String getMessage(){
+		return this.message;
+	}
+	
+	public boolean isReceived(){
+		return this.received;
+	}
 }

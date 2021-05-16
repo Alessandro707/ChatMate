@@ -6,18 +6,23 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.TextView;
 
-import com.google.firebase.auth.FirebaseAuth;
-import com.main.chatmate.chat.ChatAdapter;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.main.chatmate.MyLogger;
 import com.main.chatmate.R;
+import com.main.chatmate.chat.ChatMate;
+import com.main.chatmate.chat.ChatsAdapter;
 import com.main.chatmate.chat.User;
 
+import java.util.HashMap;
+import java.util.Map;
 
+// https://github.com/Alessandro707/ChatMate
 public class MainActivity extends AppCompatActivity {
+	private boolean chatsLoaded = false;
+	private ChatsAdapter chatsAdapter;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -25,49 +30,121 @@ public class MainActivity extends AppCompatActivity {
 		setContentView(R.layout.activity_main);
 		MyLogger.log("Main activity created successfully");
 		
-		
-		TextView chatcount = findViewById(R.id.main_username_textView);
 		Button newChat = findViewById(R.id.main_newChat_button);
+		Button delete = findViewById(R.id.main_deleteChats_button2);
 		ListView chats = findViewById(R.id.main_chats_listView);
-		Intent sceglifoto = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
 		
-		// TODO: show initial chats
-		if(!User.get().areChatsLoaded()) {
+		if(!chatsLoaded) {
 			User.get().loadChats(getApplicationContext());
-			
-			ChatAdapter adapter = new ChatAdapter();
-			chats.setAdapter(adapter);
+			chatsLoaded = true;
 		}
-		chatcount.setText(User.get().getChats().size() + "");
 		
-		newChat.setOnClickListener(this::selectNewChatmate);
+		chatsAdapter = new ChatsAdapter();
+		chats.setAdapter(chatsAdapter);
 		
-		if(getIntent().getExtras() != null && getIntent().getExtras().get("newChatmatePhone") != null){
+		newChat.setOnClickListener(v -> {
+			Intent contactsActivity = new Intent(MainActivity.this, ContactsActivity.class);
+			startActivity(contactsActivity);
+		});
+		
+		if (getIntent().getExtras() != null && getIntent().getExtras().get("newChatmatePhone") != null){
 			createNewChat(String.valueOf(getIntent().getExtras().get("newChatmatePhone")));
 		}
+		
+		delete.setOnClickListener(this::deleteAllChats);
 	}
 	
-	private void selectNewChatmate(View view) {
-		Intent contactsActivity = new Intent(MainActivity.this, ContactsActivity.class);
-		startActivity(contactsActivity);
-		
-	}
 	
 	private void createNewChat(String phone) {
-		// TODO: implement
-		// create new file, load into the User.get().loadChat(), show on screen
-		
 		MyLogger.log("Creating new chat with: " + phone);
 		
+		DatabaseReference databaseRef = FirebaseDatabase.getInstance().getReference();
+		databaseRef.child("numbers/" + phone).get().addOnCompleteListener(phoneTask -> {
+			if (!phoneTask.isSuccessful()) {
+				// todo: avverti l'utente dell'errore
+				MyLogger.log("Creating new chat failed: " + phoneTask.getException());
+				return;
+			}
+			if(phoneTask.getResult() == null) {
+				// TODO: l'utente non esiste, non si può creare la chat, mandare invito a chatmate al contatto selezionato
+				MyLogger.log("The contact selected doesn't have a chatmate account!");
+				return;
+			}
+			
+			String uid = phoneTask.getResult().getValue(String.class);
+			
+			if(uid == null){
+				// TODO: l'utente non esiste, non si può creare la chat, mandare invito a chatmate al contatto selezionato
+				MyLogger.log("The contact selected doesn't have a chatmate account!");
+				return;
+			}
+			
+			databaseRef.child("users/" + uid).get().addOnCompleteListener(mateTask -> {
+				if (!mateTask.isSuccessful()) {
+					// todo: avverti l'utente dell'errore
+					
+					MyLogger.log("Failed to get the contact's chatmate info from the rtdb: " + mateTask.getException());
+					return;
+				}
+				if(mateTask.getResult() == null) {
+					// TODO: l'utente non esiste, non si può creare la chat, mandare invito a chatmate al contatto selezionato
+					MyLogger.log("The contact selected doesn't have a chatmate account!");
+					return;
+				}
+				
+				try {
+					HashMap<String, Object> dati = (HashMap<String, Object>) mateTask.getResult().getValue();
+					if (dati != null && dati.containsKey("name") && dati.containsKey("info")) {
+						ChatMate chatmate = new ChatMate(String.valueOf(dati.get("name")), String.valueOf(dati.get("info")), phone, uid);
+						if (User.get().createChat(chatmate, getApplicationContext()).equals(User.CreateResult.OK)) {
+							chatsAdapter.notifyDataSetChanged();
+						} else {
+							// todo: informa l'utente
+						}
+					} else {// l'utente non dispone dei dati sufficienti, non è possibile creare la chat
+						MyLogger.log("The contact selected has a chatmate account but without the necessary info");
+					}
+				}catch (ClassCastException e){
+					MyLogger.log("WRONG FORMAT OF THE CHATMATE'S DATA FROM RTDB: " + e.getMessage());
+				}
+			});
+		});
 		
+	}
+	
+	
+	private void deleteAllChats(View v){
+		User.get().deleteAllChats(getApplicationContext());
+		chatsAdapter.notifyDataSetChanged();
 	}
 }
 
+
+
 /*
+rtdb/
+	users/
+		joidoh49898nogvsef/
+			name:"badinelli"
+			info:null
+			number:3582095810
+		02rwhvwieu34dad09u/
+			name:"badinelli"
+			info:null
+			number:3582095810
+	numbers/
+		3582095810:joidoh49898nogvsef
+	chats/
+		joidoh49898nogvsef/
+			02rwhvwieu34dad09u/
+			
+	
 Quando un utente viene creato, si crea anche una cartella in Firebase Storage con il suo id (i guess)
 Quella cartella conterrà tutti i file (chat.chatmate per la chat) che l'altro utente deve ANCORA ricevere
 al momento della ricezione devono essere eliminati.
 
+50€ scaro
+2€/h gio * 2
 
 FORMATO CHAT
 - = testo
@@ -91,4 +168,48 @@ https://firebase.google.com/docs/storage/android/download-files per i download n
 FirebaseUI per download di immagini
 
 // todo: chat col bot all'inizio come tutorial, punti chat con cui sbloccare emote che si ottengono completando obiettivi
+// todo: app incrociata con quella di yaya
 */
+
+
+/*
+		final String[] filename = new String[1]; // user.uid
+	 	DatabaseReference reference = FirebaseDatabase.getInstance().getReference().child(phone);
+		reference.addChildEventListener(new ChildEventListener() {
+			@Override
+			public void onChildAdded(@NonNull DataSnapshot dataSnapshot, String prevChildKey) {
+				filename[0] = dataSnapshot.getValue(String.class);
+				reference.removeEventListener(this);
+				
+			}
+			
+			@Override
+			public void onCancelled(@NonNull DatabaseError databaseError) {
+				MyLogger.log("Failed to get the uid from the database of " + phone + ": " + databaseError.getMessage());
+			}
+			
+			@Override
+			public void onChildChanged(@NonNull DataSnapshot dataSnapshot, String prevChildKey) {}
+			@Override
+			public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {}
+			@Override
+			public void onChildMoved(@NonNull DataSnapshot dataSnapshot, String prevChildKey) {}
+		});
+		
+		if(filename[0] != null) {
+			String fileContents = "";
+			try (FileOutputStream fos = openFileOutput(filename[0], Context.MODE_PRIVATE)) {
+				fos.write(fileContents.getBytes());
+				fos.close();
+				MyLogger.log("Created new chat file: " + filename[0]);
+			} catch (FileNotFoundException e) {
+				MyLogger.log("Non è possibile creare il file: " + filename[0]);
+			} catch (IOException e) {
+				MyLogger.log("Non è possibile scrivere sul file: " + filename[0]);
+			}
+		}
+		else {
+			MyLogger.log("Contact selected to create new chat doesn't have chatmate");
+		}
+		
+		 */

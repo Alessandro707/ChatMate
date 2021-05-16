@@ -11,8 +11,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseException;
 import com.google.firebase.FirebaseTooManyRequestsException;
 import com.google.firebase.auth.FirebaseAuth;
@@ -21,14 +19,14 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthOptions;
 import com.google.firebase.auth.PhoneAuthProvider;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
-import com.main.chatmate.BioActivity;
-import com.main.chatmate.FirebaseHandler;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.main.chatmate.MyLogger;
 import com.main.chatmate.R;
 import com.main.chatmate.chat.User;
 
+import java.util.HashMap;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 public class LoginActivity extends AppCompatActivity {
@@ -51,8 +49,61 @@ public class LoginActivity extends AppCompatActivity {
 		
 		FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser(); // utente già loggato, easy
 		if (user != null) {
-			MyLogger.log("User logged in");
+			DatabaseReference databaseRefUsers = FirebaseDatabase.getInstance().getReference().child("users/" + user.getUid());
+			databaseRefUsers.child("/name").get().addOnCompleteListener(nameTask -> {
+				if (!nameTask.isSuccessful()) {
+					// todo: idk
+					return;
+				}
+				if(nameTask.getResult() == null){ // name == null
+					MyLogger.log("Create new user info on database");
+					Intent bioActivity = new Intent(LoginActivity.this, BioActivity.class);
+					bioActivity.putExtra("Phone", numero.getText().toString());
+					startActivity(bioActivity);
+					return;
+				}
+				String name = nameTask.getResult().getValue(String.class);
+				
+				if(name != null) {
+					databaseRefUsers.child("/info").get().addOnCompleteListener(infoTask -> {
+						if (!infoTask.isSuccessful()) {
+							
+							return;
+						}
+						if (infoTask.getResult() == null) {
+							
+							return;
+						}
+						DatabaseReference databaseRefNumber = FirebaseDatabase.getInstance().getReference().child("numbers/" + user.getPhoneNumber());
+						databaseRefNumber.setValue(user.getUid());
+						MyLogger.log("User uid updated in database under phone: " + user.getPhoneNumber());
+						
+						String info = infoTask.getResult().getValue(String.class);
+						if(info == null)
+							info = "";
+						
+						if(User.get().logIn(name, info)) {
+							MyLogger.log("Recovered user info from database");
+							Intent mainActivity = new Intent(LoginActivity.this, MainActivity.class);
+							startActivity(mainActivity);
+						}
+						else{
+							// todo: informa l'utente
+						}
+					});
+				}
+				else {
+					MyLogger.log("Create new user info on database");
+					Intent bioActivity = new Intent(LoginActivity.this, BioActivity.class);
+					bioActivity.putExtra("Phone", numero.getText().toString());
+					startActivity(bioActivity);
+				}
+			});
 			
+			Intent loadingActivity = new Intent(LoginActivity.this, LoadingActivity.class);
+			startActivity(loadingActivity);
+			
+			/*
 			StorageReference storageRef = FirebaseStorage.getInstance().getReference().child(user.getUid() + "/info.chatmate");
 			FirebaseHandler.download(storageRef, 1024 * 1024, bytes -> {
 				User.get().logIn(bytes);
@@ -62,11 +113,16 @@ public class LoginActivity extends AppCompatActivity {
 			}, e -> {
 				MyLogger.log("User exists but info file not found"); // then do nothing
 			});
+			
+			 */
 		}
+		/*
 		// TODO: remove
 		Intent tempActivity = new Intent(LoginActivity.this, BioActivity.class);
 		tempActivity.putExtra("Phone", "3479978847");
 		startActivity(tempActivity);
+		
+		 */
 		// utente non loggato, oh shiet
 	}
 	
@@ -93,19 +149,60 @@ public class LoginActivity extends AppCompatActivity {
 	
 	
 	private void signInWithPhoneAuthCredential(PhoneAuthCredential credential) {
-		FirebaseAuth.getInstance().signInWithCredential(credential).addOnCompleteListener(this, task -> {
-			if (task.isSuccessful()) {
-				// L'utente esiste yeee
+		FirebaseAuth.getInstance().signInWithCredential(credential).addOnCompleteListener(this, loginTask -> {
+			if (loginTask.isSuccessful()) {
 				MyLogger.log("Correct code inserted");
 				
 				FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 				assert user != null;
-				StorageReference storageRef = FirebaseStorage.getInstance().getReference().child(user.getUid());
 				
+				DatabaseReference databaseRefUsers = FirebaseDatabase.getInstance().getReference().child("users/" + user.getUid());
+				databaseRefUsers.get().addOnCompleteListener(nameTask -> {
+					if (!nameTask.isSuccessful()) {
+						MyLogger.log("Failed to retrieve user info from rtdb: " + nameTask.getException());
+						return;
+					}
+					if(nameTask.getResult() == null) { // if(dati == null) -> l'utente non esiste, va creato
+						MyLogger.log("Create new user info on database");
+						Intent bioActivity = new Intent(LoginActivity.this, BioActivity.class);
+						bioActivity.putExtra("Phone", "+39" + numero.getText().toString());
+						startActivity(bioActivity);
+						return;
+					}
+					
+					HashMap<String, Object> dati = (HashMap<String, Object>) nameTask.getResult().getValue();
+					if(dati != null && dati.containsKey("name") && dati.containsKey("info")) { // l'utente esiste
+						// todo: controllare che non sia sotto un numero diverso lo stesso uid
+						DatabaseReference databaseRefNumbers = FirebaseDatabase.getInstance().getReference().child("numbers/+39" + numero.getText().toString());
+						databaseRefNumbers.setValue(user.getUid());
+						MyLogger.log("User uid updated in database under phone: +39" + numero.getText().toString());
+						
+						String name = String.valueOf(dati.get("name"));
+						String info = String.valueOf(dati.get("info"));
+						
+						if(User.get().logIn(name, info)) {
+							MyLogger.log("Recovered user info from database");
+							Intent mainActivity = new Intent(LoginActivity.this, MainActivity.class);
+							startActivity(mainActivity);
+						}
+						else {
+							// todo: informa l'utente
+						}
+					}
+					else{ // l'utente non esiste o è sprovvisto delle informazioni necessarie per loggarsi, creare un nuovo account
+						MyLogger.log("Create new user info on database");
+						Intent bioActivity = new Intent(LoginActivity.this, BioActivity.class);
+						bioActivity.putExtra("Phone", "+39" + numero.getText().toString());
+						startActivity(bioActivity);
+					}
+				});
+				
+				/*
+				StorageReference storageRef = FirebaseStorage.getInstance().getReference().child(user.getUid());
 				FirebaseHandler.getAllFilesUnderReference(storageRef, listResult -> {
 					for(StorageReference item : listResult.getItems()){
 						if(item.getName().equals("info.chatmate")){
-							MyLogger.log("Recover user info from database");
+							MyLogger.log("Recovered user info from database");
 							
 							item.getBytes(1024 * 1024).addOnSuccessListener(bytes -> User.get().logIn(bytes));
 							
@@ -123,8 +220,9 @@ public class LoginActivity extends AppCompatActivity {
 					// Uh-oh, an error occurred!
 					MyLogger.log("Database read failed trying to retrieve user info: " + exception.getMessage());
 				});
+				 */
 			} else {
-				if (task.getException() instanceof FirebaseAuthInvalidCredentialsException) {
+				if (loginTask.getException() instanceof FirebaseAuthInvalidCredentialsException) {
 					// The verification code entered was invalid
 					infoField.setText(R.string.invalid_verification_code);
 					code_field.setText("");

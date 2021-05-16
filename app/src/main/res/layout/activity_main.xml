@@ -11,8 +11,15 @@
 		android:id="@+id/main_newChat_button"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:text="New"
+		android:text="@string/new_chat"
 		android:layout_gravity="bottom|end" />
+	
+	<Button
+		android:id="@+id/main_deleteChats_button2"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_gravity="bottom|start"
+		android:text="DELETE" />
 	
 	<com.google.android.material.appbar.AppBarLayout
 		android:id="@+id/appbar_main"
@@ -37,14 +44,6 @@
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:text="@string/title"
-				android:textSize="40sp" />
-			
-			<TextView
-				android:id="@+id/main_username_textView"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:text="username"
-				android:textAlignment="viewEnd"
 				android:textSize="40sp" />
 		
 		</com.google.android.material.appbar.CollapsingToolbarLayout>

@@ -1,5 +1,8 @@
-package com.main.chatmate.contactsmadness;
+package com.main.chatmate.activities;
 
+import android.content.Context;
+import android.content.Intent;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,30 +11,29 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.main.chatmate.MyLogger;
 import com.main.chatmate.R;
 
 import java.util.List;
 
 public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ViewHolder> {
-	private final List<String> contacts;
+	private final List<Pair<String, String>> contacts; // name, number
+	private final Context context;
 	
 	public static class ViewHolder extends RecyclerView.ViewHolder {
 		private final TextView textView;
 		
-		public ViewHolder(View view) {
+		public ViewHolder(View view, Context context, List<Pair<String, String>> contacts) {
 			super(view);
 			
-			view.setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					MyLogger.log("Element " + getAdapterPosition() + " clicked.");
-				}
+			view.setOnClickListener(v -> {
+				Intent mainActivity = new Intent(context, MainActivity.class);
+				mainActivity.putExtra("newChatmatePhone", contacts.get(getAdapterPosition()).second);
+				context.startActivity(mainActivity);
 			});
 			
-			textView = (TextView) view.findViewById(R.id.contact_name);
+			textView = view.findViewById(R.id.contact_name);
 			
-			// TODO: add image from db
+			// TODO: add image
 		}
 		
 		public TextView getTextView() {
@@ -39,8 +41,9 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ViewHold
 		}
 	}
 	
-	public ContactAdapter(List<String> contacts) {
+	public ContactAdapter(List<Pair<String, String>> contacts, Context context) { // TODO: show number
 		this.contacts = contacts;
+		this.context = context;
 	}
 	
 	@Override
@@ -50,14 +53,14 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ViewHold
 		View v = LayoutInflater.from(viewGroup.getContext())
 				.inflate(R.layout.contact_layout, viewGroup, false);
 		
-		return new ViewHolder(v);
+		return new ViewHolder(v, context, contacts);
 	}
 	
 	
 	@Override
 	public void onBindViewHolder(ViewHolder viewHolder, final int position) {
 		// TODO: solo se l'utente esiste sul db
-		viewHolder.getTextView().setText(contacts.get(position));
+		viewHolder.getTextView().setText(contacts.get(position).first);
 	}
 	
 	@Override
