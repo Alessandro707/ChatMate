@@ -2,46 +2,59 @@ package com.main.chatmate.activities;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.main.chatmate.Contact;
 import com.main.chatmate.R;
 
 import java.util.List;
 
 public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ViewHolder> {
-	private final List<Pair<String, String>> contacts; // name, number
+	private final List<Contact> contacts;
 	private final Context context;
 	
 	public static class ViewHolder extends RecyclerView.ViewHolder {
-		private final TextView textView;
+		private final TextView name, number;
+		private final ImageView image;
 		
-		public ViewHolder(View view, Context context, List<Pair<String, String>> contacts) {
+		public ViewHolder(View view, Context context, List<Contact> contacts) {
 			super(view);
 			
 			view.setOnClickListener(v -> {
 				Intent mainActivity = new Intent(context, MainActivity.class);
-				mainActivity.putExtra("newChatmatePhone", contacts.get(getAdapterPosition()).second);
+				mainActivity.putExtra("newChatmatePhone", contacts.get(getAdapterPosition()).getNumber());
 				context.startActivity(mainActivity);
 			});
 			
-			textView = view.findViewById(R.id.contact_name);
+			name = view.findViewById(R.id.contact_name);
+			number = view.findViewById(R.id.contact_number);
+			image = view.findViewById(R.id.contact_img);
 			
 			// TODO: add image
 		}
 		
-		public TextView getTextView() {
-			return textView;
+		public TextView getNameView() {
+			return name;
+		}
+		public TextView getNumberView() {
+			return number;
+		}
+		public ImageView getImageView() {
+			return image;
 		}
 	}
 	
-	public ContactAdapter(List<Pair<String, String>> contacts, Context context) { // TODO: show number
+	public ContactAdapter(List<Contact> contacts, Context context) { // TODO: show number
 		this.contacts = contacts;
 		this.context = context;
 	}
@@ -59,8 +72,14 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ViewHold
 	
 	@Override
 	public void onBindViewHolder(ViewHolder viewHolder, final int position) {
-		// TODO: solo se l'utente esiste sul db
-		viewHolder.getTextView().setText(contacts.get(position).first);
+		viewHolder.getNameView().setText(contacts.get(position).getName());
+		viewHolder.getNumberView().setText(contacts.get(position).getNumber());
+
+		String imageUri = contacts.get(position).getImage();
+		if(imageUri != null)
+			viewHolder.getImageView().setImageURI(Uri.parse(imageUri));
+		else
+			viewHolder.getImageView().setImageResource(R.mipmap.scali_round);
 	}
 	
 	@Override

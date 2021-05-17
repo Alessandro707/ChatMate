@@ -12,6 +12,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.main.chatmate.MyLogger;
 import com.main.chatmate.R;
+import com.main.chatmate.chat.Chat;
 import com.main.chatmate.chat.ChatMate;
 import com.main.chatmate.chat.ChatsAdapter;
 import com.main.chatmate.chat.User;
@@ -96,10 +97,26 @@ public class MainActivity extends AppCompatActivity {
 					HashMap<String, Object> dati = (HashMap<String, Object>) mateTask.getResult().getValue();
 					if (dati != null && dati.containsKey("name") && dati.containsKey("info")) {
 						ChatMate chatmate = new ChatMate(String.valueOf(dati.get("name")), String.valueOf(dati.get("info")), phone, uid);
-						if (User.get().createChat(chatmate, getApplicationContext()).equals(User.CreateResult.OK)) {
+						
+						User.CreateResult result = User.get().createChat(chatmate, getApplicationContext());
+						if (result.equals(User.CreateResult.OK)) {
 							chatsAdapter.notifyDataSetChanged();
+						} else if(result.equals(User.CreateResult.EXISTS)) {
+							int position = -1;
+							for(int i = 0; i < User.get().getChats().size(); i++){
+								if (User.get().getChats().get(i).getChatmate().getUid().equals(uid)){
+									position = i;
+									break;
+								}
+							}
+							
+							if(position >= 0) {
+								Intent chat = new Intent(MainActivity.this, ChatActivity.class);
+								chat.putExtra("chat", position);
+								startActivity(chat);
+							}
 						} else {
-							// todo: informa l'utente
+							MyLogger.log("");
 						}
 					} else {// l'utente non dispone dei dati sufficienti, non è possibile creare la chat
 						MyLogger.log("The contact selected has a chatmate account but without the necessary info");
@@ -144,7 +161,7 @@ Quella cartella conterrà tutti i file (chat.chatmate per la chat) che l'altro u
 al momento della ricezione devono essere eliminati.
 
 50€ scaro
-2€/h gio * 2
+6€/h gio
 
 FORMATO CHAT
 - = testo
@@ -159,15 +176,7 @@ $-send nudes
 &+hentai.png <- nome del file da scaricare sul server, poi convertito in percorso nel file system del ricevente
 $+baeh.mp3
 
-info.chatmate:
-nome\n
-lunghezza del membro\n
-
-
-https://firebase.google.com/docs/storage/android/download-files per i download nel filesystem del dispositivo
-FirebaseUI per download di immagini
-
-// todo: chat col bot all'inizio come tutorial, punti chat con cui sbloccare emote che si ottengono completando obiettivi
+// todo: chat col bot all'inizio come tutorial, punti chat con cui sbloccare emote che si ottengono completando obbbiettivi
 // todo: app incrociata con quella di yaya
 */
 
@@ -212,4 +221,4 @@ FirebaseUI per download di immagini
 			MyLogger.log("Contact selected to create new chat doesn't have chatmate");
 		}
 		
-		 */
+*/

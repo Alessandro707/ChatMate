@@ -55,26 +55,6 @@ public class User {
 		// todo: sort
 	}
 	
-	public void loadChat(int position, File chat){
-		try {
-			BufferedReader reader = new BufferedReader(new FileReader(chat));
-			reader.readLine();
-			String line;
-			while ((line = reader.readLine()) != null) {
-				if(line.startsWith("&-"))
-					chats.get(position).loadMessage(line.substring(2), true);
-				else if(line.startsWith("$-"))
-					chats.get(position).loadMessage(line.substring(2), false);
-			}
-			reader.close();
-		} catch (FileNotFoundException e) {
-			MyLogger.log("Failed to open chat file " + chat.getName() + ": " + e.getMessage());
-		} catch (IOException e) {
-			MyLogger.log("Failed to read chat from file " + chat.getName() + ": " + e.getMessage());
-		}
-	}
-	
-	
 	public CreateResult createChat(ChatMate chatmate, Context context) {
 		File file = new File(context.getFilesDir(), chatmate.getUid());
 		if(file.exists()){
@@ -201,7 +181,6 @@ public class User {
 			chats.add(new Chat(new ChatMate(info[0], info[1], info[2], file.getName())));
 			
 			while ((line = reader.readLine()) != null) {
-				// TODO: send / recieve
 				chats.get(chats.size() - 1).receiveMessage(line);
 			}
 		} catch (FileNotFoundException e) {
@@ -234,7 +213,6 @@ public class User {
 			DatabaseReference databaseRef = FirebaseDatabase.getInstance().getReference().child("users/" + file.getName());
 			databaseRef.get().addOnCompleteListener(dataTask->{
 				if (!dataTask.isSuccessful()) {
-					// todo: avverti l'utente dell'errore
 					return;
 				}
 				if(dataTask.getResult() == null) { // l'utente è stato eliminato e si mostra la chat con le informazioni dell'utente salvate in locale. // todo: aggiorna le info del chatmate ogni tot
@@ -250,7 +228,6 @@ public class User {
 						BufferedReader reader = new BufferedReader(new FileReader(file));
 						String line = reader.readLine(); // prima linea contiene informazioni sull'utente
 						while ((line = reader.readLine()) != null) {
-							// TODO: send / recieve
 							chats.get(chats.size() - 1).receiveMessage(line);
 						}
 					} catch (FileNotFoundException e) {

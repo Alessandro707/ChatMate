@@ -21,6 +21,7 @@ import android.provider.ContactsContract;
 import android.util.Pair;
 import android.widget.Toast;
 
+import com.main.chatmate.Contact;
 import com.main.chatmate.MyLogger;
 import com.main.chatmate.R;
 
@@ -35,7 +36,6 @@ public class ContactsActivity extends AppCompatActivity {
 			registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
 				if (isGranted) {
 					// Permission is granted.
-					// TODO: show contacts
 					MyLogger.log("User granted Read Contacts permission");
 					
 					showContacts();
@@ -79,22 +79,27 @@ public class ContactsActivity extends AppCompatActivity {
 		ContentResolver contentResolver = getContentResolver();
 		Cursor cursor = contentResolver.query(ContactsContract.Contacts.CONTENT_URI, null, null, null, null);
 		if (cursor != null) {
-			List<Pair<String, String>> contacts = new ArrayList<>();
+			//List<Pair<String, String>> contacts = new ArrayList<>();
+			List<Contact> contacts = new ArrayList<>();
 			while (cursor.moveToNext()) {
 				String id = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
 				if (cursor.getInt(cursor.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER)) > 0) {
 					Cursor cursorInfo = contentResolver.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null,
-							ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ?", new String[]{id}, null);
+							ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ?", new String[]{id},
+							ContactsContract.Contacts.DISPLAY_NAME_PRIMARY + " ASC");
 					
 					if(cursorInfo != null) {
 						String lastNumber = "";
 						while(cursorInfo.moveToNext()) {
-							if(cursorInfo.getString(cursorInfo.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)).equals(lastNumber))
+							String contactNumber = cursorInfo.getString(cursorInfo.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+							String contactName = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME_PRIMARY));
+							if(contactNumber.equals(lastNumber))
 								continue;
+
+							String data = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.PHOTO_URI));
 							
-							contacts.add(new Pair<>(cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME_PRIMARY)),
-									cursorInfo.getString(cursorInfo.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))));
-							lastNumber = cursorInfo.getString(cursorInfo.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+							contacts.add(new Contact(contactName, contactNumber, data));
+							lastNumber = contactNumber;
 						}
 						cursorInfo.close();
 					}

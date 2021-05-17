@@ -51,7 +51,6 @@ public class ChatsAdapter extends BaseAdapter {
 		ImageView img_profilo = convertView.findViewById(R.id.profile_img);
 		TextView nome_chat = convertView.findViewById(R.id.chat_name);
 		
-		//TODO: implement
 		nome_chat.setText(User.get().getChats().get(position).getChatmate().getName());
 		
 		FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
@@ -67,11 +66,8 @@ public class ChatsAdapter extends BaseAdapter {
 					img_profilo.setImageResource(R.mipmap.mate);
 				});
 		
-		View finalConvertView = convertView;
 		convertView.setOnClickListener(v -> {
 			MyLogger.log("Opening chat with: " + chatmateUid);
-			
-			User.get().loadChat(position, new File(finalConvertView.getContext().getFilesDir(), chatmateUid));
 			
 			Intent chat = new Intent(parent.getContext(), ChatActivity.class);
 			chat.putExtra("chat", position);

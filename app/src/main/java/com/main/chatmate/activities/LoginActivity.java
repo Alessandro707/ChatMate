@@ -117,7 +117,6 @@ public class LoginActivity extends AppCompatActivity {
 			 */
 		}
 		/*
-		// TODO: remove
 		Intent tempActivity = new Intent(LoginActivity.this, BioActivity.class);
 		tempActivity.putExtra("Phone", "3479978847");
 		startActivity(tempActivity);

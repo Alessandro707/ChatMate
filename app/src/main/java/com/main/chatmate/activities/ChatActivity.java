@@ -10,21 +10,28 @@ import android.widget.ScrollView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.main.chatmate.R;
+import com.main.chatmate.chat.Chat;
 import com.main.chatmate.chat.User;
 
+import java.io.File;
+
 public class ChatActivity extends AppCompatActivity {
-    Button backButton;
-    Button sendButton;
-    ScrollView corpo;
-    EditText writeBox;
+    private Chat chat;
 
     @Override
     public void onCreate( Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
-        backButton= findViewById(R.id.chat_back_Button);
-        sendButton= findViewById(R.id.chat_send_Button);
-        writeBox = findViewById(R.id.chat_writeBox_editTextTextMultiLine);
+        Button backButton = findViewById(R.id.chat_back_Button);
+        Button sendButton = findViewById(R.id.chat_send_Button);
+        EditText writeBox = findViewById(R.id.chat_writeBox_editTextTextMultiLine);
+    
+        chat = User.get().getChats().get((int)getIntent().getExtras().get("chat"));
+        chat.load();
+        
+        if(!chat.canWrite())
+            writeBox.setEnabled(false);
+            
         backButton.setOnClickListener(v -> {
             Intent back = new Intent(ChatActivity.this, ContactsActivity.class);
             startActivity(back);
@@ -32,12 +39,15 @@ public class ChatActivity extends AppCompatActivity {
 
         sendButton.setOnClickListener(v -> {
             if(!writeBox.getText().toString().isEmpty()){
-                int nchat = (int)getIntent().getExtras().get("chat");
-                User.get().getChats().get(nchat).sendMessage(writeBox.getText().toString());
+                chat.sendMessage(writeBox.getText().toString());
             }
-            //corpo.addView(d);
         });
-
-
+    }
+    
+    
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        chat.close();
     }
 }
