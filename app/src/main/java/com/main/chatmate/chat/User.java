@@ -21,7 +21,6 @@ public class User {
 	private final ArrayList<Chat> chats = new ArrayList<>();
 	
 	private User() {
-	
 	}
 	
 	public String getName(){

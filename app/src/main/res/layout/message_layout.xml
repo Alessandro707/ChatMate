@@ -4,13 +4,24 @@
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent">
-	
+
 	<TextView
 		android:id="@+id/message_message_textView"
-		android:layout_width="match_parent"
+		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		app:layout_constraintEnd_toEndOf="parent"
+		android:layout_marginStart="4dp"
+		android:maxWidth="230dp"
+		android:text="TextView"
+		android:textSize="15dp"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toTopOf="parent" />
 
+	<ImageView
+		android:id="@+id/message_read_imageView"
+		android:layout_width="20dp"
+		android:layout_height="20dp"
+		android:layout_marginStart="4dp"
+		app:layout_constraintStart_toEndOf="@+id/message_message_textView"
+		app:layout_constraintTop_toTopOf="parent"
+		app:srcCompat="@android:drawable/checkbox_off_background" />
 </androidx.constraintlayout.widget.ConstraintLayout>

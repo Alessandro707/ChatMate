@@ -7,7 +7,6 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 
-import com.main.chatmate.MyLogger;
 import com.main.chatmate.R;
 
 public class MessagesAdapter extends BaseAdapter {
