@@ -1,5 +1,7 @@
 package com.main.chatmate.activities;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
@@ -8,16 +10,25 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ListView;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.main.chatmate.MyLogger;
 import com.main.chatmate.R;
+import com.main.chatmate.chat.Chat;
 import com.main.chatmate.chat.ChatMate;
 import com.main.chatmate.chat.ChatsAdapter;
 import com.main.chatmate.chat.User;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 // https://github.com/Alessandro707/ChatMate
 public class MainActivity extends AppCompatActivity {
@@ -52,6 +63,81 @@ public class MainActivity extends AppCompatActivity {
 		}
 		
 		delete.setOnClickListener(this::deleteAllChats);
+
+		DatabaseReference ref = FirebaseDatabase.getInstance().getReference();
+		FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+		HashMap<String, Boolean> chatMap = new HashMap<>();
+		ref.child("users/"+ user.getUid() + "/chats").addChildEventListener(new ChildEventListener() {
+			@Override
+			public void onChildAdded(DataSnapshot dataSnapshot, String prevChildKey) {
+				Map<String, Object> data =  (Map<String, Object>)dataSnapshot.getValue();
+
+				for (Map.Entry<String, Object> pepperoncino:data.entrySet()) {
+					if(!chatMap.containsKey(pepperoncino.getKey())){
+						chatMap.put(pepperoncino.getKey(), true);
+						ref.child("users/"+ user.getUid() + "/chats/"+ pepperoncino.getKey()).addChildEventListener(new ChildEventListener() {
+							@Override
+							public void onChildAdded(DataSnapshot messageSnapshot, String prevChildKey) {
+								Map<String, String> messages= (Map<String, String>)messageSnapshot.getValue();
+								boolean esistelachiattona = false;
+								for (Map.Entry<String, String > melanzoni:messages.entrySet()) {
+									for (Chat chiattona:User.get().getChats()) {
+										if(chiattona.getChatmate().getUid().equals(melanzoni.getKey())){
+											chiattona.receiveMessage(melanzoni.getValue());
+											esistelachiattona=true;
+											break;
+										}
+									}
+									if(!esistelachiattona){
+										ref.child("users/"+pepperoncino.getKey()+"/name").get().addOnCompleteListener(nameTask -> {
+											String name=nameTask.getResult().getValue(String.class);
+											if(name != null) {
+												ref.child("users/"+pepperoncino.getKey()+"/info").get().addOnCompleteListener(infoTask -> {
+													String info = infoTask.getResult().getValue(String.class);
+													if(info == null)
+														info = "";
+													String finalInfo = info;
+													ref.child("users/"+pepperoncino.getKey()+"/info").get().addOnCompleteListener(phoneTask -> {
+														String phone= phoneTask.getResult().getValue(String.class);
+														User.get().createChat(new ChatMate(name, finalInfo,phone, pepperoncino.getKey()),getApplicationContext());
+														User.get().getChats().get(User.get().getChats().size()-1).receiveMessage(melanzoni.getValue());
+													});
+												});
+											}
+										});
+									}
+								}
+								ref.child("users/"+ user.getUid() + "/chats/"+ pepperoncino.getKey()).removeValue();
+							}
+
+							@Override
+							public void onChildChanged(DataSnapshot dataSnapshot, String prevChildKey) {}
+
+							@Override
+							public void onChildRemoved(DataSnapshot dataSnapshot) {}
+
+							@Override
+							public void onChildMoved(DataSnapshot dataSnapshot, String prevChildKey) {}
+
+							@Override
+							public void onCancelled(DatabaseError databaseError) {}
+						});
+					}
+				}
+			}
+
+			@Override
+			public void onChildChanged(DataSnapshot dataSnapshot, String prevChildKey) {}
+
+			@Override
+			public void onChildRemoved(DataSnapshot dataSnapshot) {}
+
+			@Override
+			public void onChildMoved(DataSnapshot dataSnapshot, String prevChildKey) {}
+
+			@Override
+			public void onCancelled(DatabaseError databaseError) {}
+		});
 	}
 	
 	

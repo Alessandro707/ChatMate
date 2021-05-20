@@ -66,7 +66,7 @@ public class Chat {
 			writer.write("&-" + message);
 			MyLogger.log("Message sent: " + message);
 			messages.add(new Message(message, true));
-			// todo: rimuovi dal rtdb
+			// todo: sacrifica un agnello alla divinità Scalici \_(U_U)_/ *genuflessione*
 		} catch (IOException ioException) {
 			MyLogger.log("Can't write new message to internal file: " + ioException.getMessage());
 		}
