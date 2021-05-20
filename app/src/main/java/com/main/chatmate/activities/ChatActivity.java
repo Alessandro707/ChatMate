@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.ScrollView;
 
 
@@ -25,7 +26,7 @@ public class ChatActivity extends AppCompatActivity {
         Button backButton = findViewById(R.id.chat_back_Button);
         Button sendButton = findViewById(R.id.chat_send_Button);
         EditText writeBox = findViewById(R.id.chat_writeBox_editTextTextMultiLine);
-    
+        
         chat = User.get().getChats().get((int)getIntent().getExtras().get("chat"));
         chat.load();
         

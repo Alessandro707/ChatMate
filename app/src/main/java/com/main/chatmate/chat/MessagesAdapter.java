@@ -36,14 +36,13 @@ public class MessagesAdapter extends BaseAdapter {
 			convertView = inflater.inflate(R.layout.message_layout, parent, false);
 		}
 		
-		for(Message m : User.get().getChats().get(chat).getMessages()){
-			TextView text = convertView.findViewById(R.id.message_message_textView);
-			text.setText(m.getMessage());
-			if(m.isReceived())
-				text.setTextAlignment(View.TEXT_ALIGNMENT_VIEW_END);
-			else
-				text.setTextAlignment(View.TEXT_ALIGNMENT_VIEW_START);
-		}
+		Message m = User.get().getChats().get(chat).getMessages().get(position);
+		TextView text = convertView.findViewById(R.id.message_message_textView);
+		text.setText(m.getMessage());
+		if(m.isReceived())
+			text.setTextAlignment(View.TEXT_ALIGNMENT_VIEW_END);
+		else
+			text.setTextAlignment(View.TEXT_ALIGNMENT_VIEW_START);
 		
 		return convertView;
 	}
