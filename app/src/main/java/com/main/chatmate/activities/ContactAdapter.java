@@ -2,9 +2,7 @@ package com.main.chatmate.activities;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,6 +31,7 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ViewHold
 			view.setOnClickListener(v -> {
 				Intent mainActivity = new Intent(context, MainActivity.class);
 				mainActivity.putExtra("newChatmatePhone", contacts.get(getAdapterPosition()).getNumber());
+				mainActivity.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 				context.startActivity(mainActivity);
 			});
 			

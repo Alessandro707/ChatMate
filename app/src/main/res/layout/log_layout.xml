@@ -6,14 +6,11 @@
 	android:layout_height="match_parent">
 	
 	<TextView
-		android:id="@+id/message_message_textView"
-		android:layout_width="match_parent"
+		android:id="@+id/log_textView"
+		android:layout_width="0dp"
 		android:layout_height="wrap_content"
-		android:maxWidth="230dp"
 		android:text="TextView"
-		android:textSize="15dp"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toTopOf="parent" />
-
 </androidx.constraintlayout.widget.ConstraintLayout>

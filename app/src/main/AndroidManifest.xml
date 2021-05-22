@@ -21,5 +21,6 @@
 		<activity android:name=".activities.ContactsActivity"/>
 		<activity android:name=".activities.BioActivity"/>
 		<activity android:name=".activities.ChatActivity"/>
+		<activity android:name=".activities.LogActivity"/>
 	</application>
 </manifest>

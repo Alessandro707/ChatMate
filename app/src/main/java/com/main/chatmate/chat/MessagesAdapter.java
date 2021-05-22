@@ -6,7 +6,6 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
-
 import com.main.chatmate.R;
 
 public class MessagesAdapter extends BaseAdapter {
@@ -42,6 +41,7 @@ public class MessagesAdapter extends BaseAdapter {
 			text.setTextAlignment(View.TEXT_ALIGNMENT_VIEW_END);
 		else
 			text.setTextAlignment(View.TEXT_ALIGNMENT_VIEW_START);
+		// TODO: gestisci i recapitato / letto
 		
 		return convertView;
 	}

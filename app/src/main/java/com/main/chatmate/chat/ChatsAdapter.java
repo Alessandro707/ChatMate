@@ -10,10 +10,6 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
-
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.storage.FirebaseStorage;
@@ -21,8 +17,6 @@ import com.main.chatmate.FirebaseHandler;
 import com.main.chatmate.MyLogger;
 import com.main.chatmate.R;
 import com.main.chatmate.activities.ChatActivity;
-
-import java.io.File;
 
 public class ChatsAdapter extends BaseAdapter {
 	

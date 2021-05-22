@@ -16,4 +16,5 @@
 	<string name="verify_verification_code">Verifica codice di verifica</string>
 	<string name="new_chat">New</string>
     <string name="back"><![CDATA[<-]]></string>
+	<string name="send"><![CDATA[->]]></string>
 </resources>

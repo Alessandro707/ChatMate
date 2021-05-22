@@ -9,23 +9,17 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
 import android.content.ContentResolver;
-import android.content.ContentUris;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
-import android.util.Pair;
 import android.widget.Toast;
 
 import com.main.chatmate.Contact;
 import com.main.chatmate.MyLogger;
 import com.main.chatmate.R;
 
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 

@@ -19,6 +19,7 @@ public class Chat {
 	private final ChatMate chatmate;
 	private BufferedWriter writer = null;
 	private File file;
+	private boolean loaded = false;
 	
 	public Chat(ChatMate destinatario, File file){
 		this.chatmate = destinatario;
@@ -42,21 +43,11 @@ public class Chat {
 			writer.write("$-" + message + "\n");
 			writer.flush();
 			
-			messages.add(new Message(message, false));
+			if(loaded)
+				messages.add(new Message(message, false));
 			// TODO: fallo davvero però
 			MyLogger.log("Message sent: " + message);
 			// todo: riconosci ery e bannalo
-		} catch (IOException ioException) {
-			MyLogger.log("Can't write new message to internal file: " + ioException.getMessage());
-		}
-	}
-	
-	public void sendMessage(String message, Context context){
-		try (FileOutputStream fos = context.openFileOutput(file.getName(), Context.MODE_APPEND)) {
-			fos.write((message + "\n").getBytes());
-			fos.close();
-			messages.add(new Message(message, false));
-			MyLogger.log("Message sent: " + message);
 		} catch (IOException ioException) {
 			MyLogger.log("Can't write new message to internal file: " + ioException.getMessage());
 		}
@@ -68,8 +59,10 @@ public class Chat {
 		}
 		try {
 			writer.write("&-" + message + "\n");
-			MyLogger.log("Message sent: " + message);
-			messages.add(new Message(message, true));
+			writer.flush();
+			MyLogger.log("Message received: " + message);
+			if(loaded)
+				messages.add(new Message(message, true));
 			// todo: sacrifica un agnello alla divinità Scalici \_(U_U)_/ *genuflessione*
 		} catch (IOException ioException) {
 			MyLogger.log("Can't write new message to internal file: " + ioException.getMessage());
@@ -77,6 +70,9 @@ public class Chat {
 	}
 	
 	public void load(){
+		if(loaded)
+			return;
+		loaded = true;
 		try {
 			BufferedReader reader = new BufferedReader(new FileReader(file));
 			reader.readLine();

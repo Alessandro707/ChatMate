@@ -2,14 +2,9 @@ package com.main.chatmate;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.storage.ListResult;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-import com.main.chatmate.chat.Chat;
-
-import java.util.ArrayList;
-import java.util.Objects;
 
 public interface FirebaseHandler {
 	

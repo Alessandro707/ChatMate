@@ -13,12 +13,14 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class User {
 	private static User user;
 	private boolean logged = false;
 	private String name = "", uid = "", info = "";
 	private final ArrayList<Chat> chats = new ArrayList<>();
+	private boolean chatsLoaded = false;
 	
 	private User() {
 	}
@@ -31,6 +33,9 @@ public class User {
 	}
 	
 	public void loadChats(Context context) {
+		if(chatsLoaded)
+			return;
+		chatsLoaded = true;
 		File[] files = context.getFilesDir().listFiles();
 		if(files == null)
 			return;
