@@ -1,4 +1,4 @@
-package com.main.chatmate.activities;
+package com.main.chatmate.adapters;
 
 import android.text.Layout;
 import android.util.Log;
@@ -9,6 +9,7 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import com.main.chatmate.R;
+import com.main.chatmate.activities.LogActivity;
 
 public class LogAdapter extends BaseAdapter {
 	

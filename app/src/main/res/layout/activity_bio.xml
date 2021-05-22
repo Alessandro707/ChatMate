@@ -32,7 +32,7 @@
 			android:id="@+id/bio_name_TextView"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:text="Name" />
+			android:text="@string/name" />
 		
 		<EditText
 			android:id="@+id/bio_name_EditText"
@@ -48,7 +48,7 @@
 			android:id="@+id/bio_info_TextView"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:text="Info" />
+			android:text="@string/info" />
 		
 		<EditText
 			android:id="@+id/bio_info_EditText"
@@ -64,14 +64,13 @@
 			android:id="@+id/bio_phone_TextView"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:text="Phone" />
+			android:text="@string/phone" />
 		
 		<TextView
 			android:id="@+id/bio_TextPhone"
 			android:layout_width="match_parent"
 			android:layout_height="70dp"
-			android:ems="10"
-			android:inputType="phone" />
+			android:ems="10" />
 	
 	</LinearLayout>
 	
@@ -79,7 +78,7 @@
 		android:id="@+id/bio_conferma_Button"
 		android:layout_width="139dp"
 		android:layout_height="48dp"
-		android:text="CONFERMA"
+		android:text="@string/confirm"
 		app:layout_constraintBottom_toBottomOf="parent"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintHorizontal_bias="0.498"

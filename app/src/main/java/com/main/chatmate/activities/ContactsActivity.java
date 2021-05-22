@@ -16,9 +16,10 @@ import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.widget.Toast;
 
-import com.main.chatmate.Contact;
+import com.main.chatmate.chat.Contact;
 import com.main.chatmate.MyLogger;
 import com.main.chatmate.R;
+import com.main.chatmate.adapters.ContactsAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -106,7 +107,7 @@ public class ContactsActivity extends AppCompatActivity {
 			
 			MyLogger.log("Number of contacts loaded:  " + contacts.size());
 			
-			ContactAdapter adapterPazzo = new ContactAdapter(contacts, this.getApplicationContext());
+			ContactsAdapter adapterPazzo = new ContactsAdapter(contacts, this.getApplicationContext());
 			contactsView.setLayoutManager(new LinearLayoutManager(this));
 			contactsView.setAdapter(adapterPazzo);
 			

@@ -4,14 +4,12 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
 import android.widget.ListView;
-import android.widget.ProgressBar;
 
 import com.main.chatmate.MyLogger;
 import com.main.chatmate.R;
+import com.main.chatmate.adapters.LogAdapter;
 
 import java.util.ArrayList;
-import java.util.Timer;
-import java.util.TimerTask;
 
 public class LogActivity extends AppCompatActivity {
 	public static ArrayList<String> log = new ArrayList<>();

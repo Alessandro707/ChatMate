@@ -1,19 +1,16 @@
 package com.main.chatmate.activities;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Pair;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ListView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -23,13 +20,10 @@ import com.main.chatmate.MyLogger;
 import com.main.chatmate.R;
 import com.main.chatmate.chat.Chat;
 import com.main.chatmate.chat.ChatMate;
-import com.main.chatmate.chat.ChatsAdapter;
+import com.main.chatmate.adapters.ChatsAdapter;
 import com.main.chatmate.chat.User;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Queue;
 
 // https://github.com/Alessandro707/ChatMate
 
@@ -60,7 +54,6 @@ import java.util.Queue;
  *      activity_loading.xml:   LordTimotay<br>
  *      activity_login.xml:     LordTimotay<br>
  *      activity_main.xml:      LordTimotay<br>
- *      activity_register.xml:  LordTimotay<br>
  *      chat_layout.xml:        LordTimotay<br>
  *      contact_layout.xml:     LordTimotay<br>
  *      message_layout.xml:     LordTimotay<br><br>

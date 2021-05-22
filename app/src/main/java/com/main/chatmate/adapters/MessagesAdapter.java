@@ -1,4 +1,4 @@
-package com.main.chatmate.chat;
+package com.main.chatmate.adapters;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -7,6 +7,8 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import com.main.chatmate.R;
+import com.main.chatmate.chat.Message;
+import com.main.chatmate.chat.User;
 
 public class MessagesAdapter extends BaseAdapter {
 	private final int chat;

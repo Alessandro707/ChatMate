@@ -17,4 +17,11 @@
 	<string name="new_chat">New</string>
     <string name="back"><![CDATA[<-]]></string>
 	<string name="send"><![CDATA[->]]></string>
+	<string name="name">Nome</string>
+	<string name="info">Info</string>
+	<string name="phone">Telefono</string>
+	<string name="confirm">CONFERMA</string>
+	<string name="logout">LOGOUT</string>
+	<string name="delete">ELIMINA</string>
+	<string name="log">LOG</string>
 </resources>

@@ -1,4 +1,4 @@
-package com.main.chatmate.chat;
+package com.main.chatmate.adapters;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -17,6 +17,7 @@ import com.main.chatmate.FirebaseHandler;
 import com.main.chatmate.MyLogger;
 import com.main.chatmate.R;
 import com.main.chatmate.activities.ChatActivity;
+import com.main.chatmate.chat.User;
 
 public class ChatsAdapter extends BaseAdapter {
 	

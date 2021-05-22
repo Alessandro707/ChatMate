@@ -1,4 +1,4 @@
-package com.main.chatmate.activities;
+package com.main.chatmate.adapters;
 
 import android.content.Context;
 import android.content.Intent;
@@ -12,12 +12,13 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.main.chatmate.Contact;
+import com.main.chatmate.chat.Contact;
 import com.main.chatmate.R;
+import com.main.chatmate.activities.MainActivity;
 
 import java.util.List;
 
-public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ViewHolder> {
+public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.ViewHolder> {
 	private final List<Contact> contacts;
 	private final Context context;
 	
@@ -53,7 +54,7 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ViewHold
 		}
 	}
 	
-	public ContactAdapter(List<Contact> contacts, Context context) { // TODO: show number
+	public ContactsAdapter(List<Contact> contacts, Context context) { // TODO: show number
 		this.contacts = contacts;
 		this.context = context;
 	}

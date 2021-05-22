@@ -12,7 +12,7 @@
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_gravity="bottom|center"
-		android:text="LOGOUT" />
+		android:text="@string/logout" />
 	
 	<Button
 		android:id="@+id/main_newChat_button"
@@ -26,14 +26,14 @@
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_gravity="bottom|start"
-		android:text="DELETE" />
+		android:text="@string/delete" />
 	
 	<Button
 		android:id="@+id/main_log_button"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_gravity="center|end"
-		android:text="LOG" />
+		android:text="@string/log" />
 	
 	<com.google.android.material.appbar.AppBarLayout
 		android:id="@+id/appbar_main"

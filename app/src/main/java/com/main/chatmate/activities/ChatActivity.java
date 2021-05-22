@@ -18,12 +18,9 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.main.chatmate.R;
 import com.main.chatmate.chat.ChatMate;
-import com.main.chatmate.chat.MessagesAdapter;
+import com.main.chatmate.adapters.MessagesAdapter;
 import com.main.chatmate.chat.User;
 import com.main.chatmate.chat.Chat;
-
-import java.util.Timer;
-import java.util.TimerTask;
 
 public class ChatActivity extends AppCompatActivity {
     Button backButton, sendButton;

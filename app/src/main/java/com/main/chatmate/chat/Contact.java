@@ -1,4 +1,4 @@
-package com.main.chatmate;
+package com.main.chatmate.chat;
 
 public class Contact {
 	private final String name, number;
