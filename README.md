@@ -1,3 +1,4 @@
 # ChatMate
-chat pazza per copiare durante le verifiche
-ciao badinelli
+Chat pazza per copiare durante le verifiche. 
+
+Si può creare la chat solo con contatti che hanno ChatMate®. 
