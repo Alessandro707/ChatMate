@@ -73,6 +73,7 @@ public class User {
 					return CreateResult.ERROR;
 			} catch (IOException e) {
 				MyLogger.log("CAN'T CREATE NEW CHAT FILE " + chatmate.getUid() + ": " + e.getMessage());
+                                return CreateResult.ERROR;
 			}
 			try{
 				BufferedWriter writer = new BufferedWriter(new FileWriter(file));
